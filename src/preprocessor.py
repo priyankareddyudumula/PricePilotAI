@@ -43,7 +43,7 @@ def clean_datasets(datasets):
     """
     Handles missing values and duplicate rows in the datasets.
     """
-    logger.info("Handling duplicates and missing values...")
+    logger.info("Handling duplicate rows and missing values for all Olist datasets...")
     cleaned_dfs = {k: v.copy() for k, v in datasets.items()}
     
     # 1. Handle duplicate rows in each dataset
