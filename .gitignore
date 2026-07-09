@@ -1,0 +1,27 @@
+# Python caching
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data files
+data/
+*.csv
+*.zip
+*.tar.gz
+
+# Machine learning model serialization
+*.pkl
+*.pkl.gz
+*.joblib
+outputs/models/
+outputs/shap/
+outputs/feature_importance/
+
+# Logs
+logs/
+*.log
+
+# IDEs
+.vscode/
+.idea/
+.ipynb_checkpoints/
