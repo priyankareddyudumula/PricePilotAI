@@ -114,7 +114,7 @@ def merge_datasets(datasets):
     translation = datasets["product_category_name_translation"]
     
     # 1. Aggregate Order Items to order level
-    logger.info("Aggregating order items...")
+    logger.info("Aggregating order items details to order level...")
     agg_items = items.groupby("order_id").agg({
         "price": ["sum", "mean"],
         "freight_value": "sum",
