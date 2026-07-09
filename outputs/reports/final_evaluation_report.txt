@@ -1,0 +1,25 @@
+===========================================
+       OLIST ML PIPELINE EVALUATION REPORT  
+===========================================
+Best Model: Extra Trees Regressor
+Best Hyperparameters: {'alpha': 1.0}
+
+Tuned Model Performance Metrics:
+ - MAE: 5.1380
+ - MSE: 546.2117
+ - RMSE: 23.3712
+ - R2 Score: 0.9874
+ - Explained Variance: 0.9874
+
+Model Rankings Summary:
+                 Model_Name  Training_Time  Inference_Time      MAE      RMSE  R2_Score  CV_Score
+      Extra Trees Regressor       0.666333        0.113803 3.405921 20.455328  0.990353  0.961026
+Gradient Boosting Regressor      16.807572        0.013886 2.711648 21.584994  0.989258  0.933520
+           Lasso Regression       0.575606        0.003288 5.072856 23.352897  0.987426  0.992746
+          Linear Regression       0.030329        0.002445 5.137992 23.369781  0.987408  0.992738
+           Ridge Regression       0.015667        0.003554 5.138033 23.371171  0.987407  0.992726
+    Random Forest Regressor       3.641756        0.066509 2.654048 25.090067  0.985486  0.950714
+    Decision Tree Regressor       0.532601        0.003794 5.295125 26.323601  0.984024  0.814967
+          XGBoost Regressor       0.253283        0.006049 4.546902 35.550740  0.970861  0.862823
+         LightGBM Regressor       0.304998        0.012681 4.916138 35.893044  0.970297  0.869560
+         CatBoost Regressor       0.769633        0.014599 7.703482 37.289679  0.967941  0.887148
