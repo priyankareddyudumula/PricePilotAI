@@ -263,30 +263,34 @@ def run_eda_pipeline(df, raw_datasets=None):
         fig_plotly_del.write_html(PLOTS_DIR / "interactive_delivery_analysis.html")
 
         # 13. ydata-profiling Report
-        logger.info("Generating ydata-profiling HTML report...")
-        # Since profiling on the full master dataset (96k rows x 55 columns) can be very resource-heavy,
-        # we profile on a representative 10% sample (or 10,000 rows) which is standard and extremely fast.
-        profile_sample = df.sample(min(10000, len(df)), random_state=42)
-        
-        # Strip datetime and ID columns for cleaner profiling
-        cols_to_profile = [
-            TARGET_COLUMN, "total_price", "total_freight_cost", "avg_product_price", 
-            "num_items_ordered", "payment_installments", "avg_review_score", 
-            "delivery_time", "delivery_delay", "customer_lifetime_value", 
-            "number_of_orders", "revenue_per_customer", "revenue_per_seller", 
-            "product_popularity", "customer_city", "customer_state", "payment_type", 
-            "product_category_name_english"
-        ]
-        
-        profile = ProfileReport(
-            profile_sample[cols_to_profile], 
-            title="Olist E-commerce Profiling Report", 
-            explorative=True
-        )
-        
-        # Write HTML report
-        profile.to_file(REPORTS_DIR / "ydata_profiling_report.html")
-        logger.info("ydata-profiling report saved successfully!")
+        report_path = REPORTS_DIR / "ydata_profiling_report.html"
+        if report_path.exists():
+            logger.info("ydata-profiling HTML report already exists. Skipping regeneration to save time.")
+        else:
+            logger.info("Generating ydata-profiling HTML report...")
+            # Since profiling on the full master dataset (96k rows x 55 columns) can be very resource-heavy,
+            # we profile on a representative 10% sample (or 10,000 rows) which is standard and extremely fast.
+            profile_sample = df.sample(min(10000, len(df)), random_state=42)
+            
+            # Strip datetime and ID columns for cleaner profiling
+            cols_to_profile = [
+                TARGET_COLUMN, "total_price", "total_freight_cost", "avg_product_price", 
+                "num_items_ordered", "payment_installments", "avg_review_score", 
+                "delivery_time", "delivery_delay", "customer_lifetime_value", 
+                "number_of_orders", "revenue_per_customer", "revenue_per_seller", 
+                "product_popularity", "customer_city", "customer_state", "payment_type", 
+                "product_category_name_english"
+            ]
+            
+            profile = ProfileReport(
+                profile_sample[cols_to_profile], 
+                title="Olist E-commerce Profiling Report", 
+                explorative=True
+            )
+            
+            # Write HTML report
+            profile.to_file(report_path)
+            logger.info("ydata-profiling report saved successfully!")
 
         logger.info("EDA pipeline executed successfully! All visualisations and reports saved.")
     except Exception as e:
