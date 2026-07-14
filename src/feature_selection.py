@@ -43,6 +43,8 @@ def preprocess_and_select_features(df):
             "customer_state", "product_id", "seller_id", "product_category_name",
             "product_category_name_english", "seller_city", "seller_state",
             "total_payment_value", "total_price",  # Target and total price (leakage)
+            "customer_lifetime_value", "revenue_per_customer", "avg_product_price",
+            "total_freight_cost", "revenue_per_seller",
             TARGET_COLUMN
         ]
         
