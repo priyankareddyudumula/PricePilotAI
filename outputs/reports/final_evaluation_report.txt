@@ -1,25 +1,25 @@
 ===========================================
        OLIST ML PIPELINE EVALUATION REPORT  
 ===========================================
-Best Model: Extra Trees Regressor
-Best Hyperparameters: {'alpha': 1.0}
+Best Model: XGBoost Regressor
+Best Hyperparameters: {'n_estimators': 50, 'max_depth': 5, 'learning_rate': 0.1}
 
 Tuned Model Performance Metrics:
- - MAE: 5.1380
- - MSE: 546.2117
- - RMSE: 23.3712
- - R2 Score: 0.9874
- - Explained Variance: 0.9874
+ - MAE: 55.3817
+ - MSE: 22904.6861
+ - RMSE: 151.3429
+ - R2 Score: 0.6070
+ - Explained Variance: 0.6072
 
 Model Rankings Summary:
-                 Model_Name  Training_Time  Inference_Time      MAE      RMSE  R2_Score  CV_Score
-      Extra Trees Regressor       0.666333        0.113803 3.405921 20.455328  0.990353  0.961026
-Gradient Boosting Regressor      16.807572        0.013886 2.711648 21.584994  0.989258  0.933520
-           Lasso Regression       0.575606        0.003288 5.072856 23.352897  0.987426  0.992746
-          Linear Regression       0.030329        0.002445 5.137992 23.369781  0.987408  0.992738
-           Ridge Regression       0.015667        0.003554 5.138033 23.371171  0.987407  0.992726
-    Random Forest Regressor       3.641756        0.066509 2.654048 25.090067  0.985486  0.950714
-    Decision Tree Regressor       0.532601        0.003794 5.295125 26.323601  0.984024  0.814967
-          XGBoost Regressor       0.253283        0.006049 4.546902 35.550740  0.970861  0.862823
-         LightGBM Regressor       0.304998        0.012681 4.916138 35.893044  0.970297  0.869560
-         CatBoost Regressor       0.769633        0.014599 7.703482 37.289679  0.967941  0.887148
+                 Model_Name  Training_Time  Inference_Time       MAE       RMSE  R2_Score  CV_Score
+          XGBoost Regressor       0.201204        0.003870 52.322677 144.700480  0.640776  0.497637
+Gradient Boosting Regressor      11.464903        0.013983 54.966395 149.007011  0.619076  0.463870
+    Random Forest Regressor       1.422269        0.039927 52.625381 149.141739  0.618387  0.508271
+         CatBoost Regressor       0.406521        0.005264 55.520665 150.136728  0.613278  0.524754
+      Extra Trees Regressor       0.272424        0.043782 60.249806 154.159560  0.592276  0.478027
+    Decision Tree Regressor       0.343288        0.003705 60.822908 155.269182  0.586386 -0.033145
+         LightGBM Regressor       0.135329        0.007874 56.017951 162.643106  0.546167  0.541828
+          Linear Regression       0.023872        0.003129 66.314748 166.331986  0.525347  0.563960
+           Ridge Regression       0.011493        0.002431 66.314382 166.332245  0.525345  0.564108
+           Lasso Regression       0.149066        0.001856 66.240766 166.386782  0.525034  0.564362

@@ -28,63 +28,78 @@ def engineer_features(master_df):
         df["order_purchase_day"] = dt_col.dt.day
         df["order_purchase_quarter"] = dt_col.dt.quarter
         df["order_purchase_weekday"] = dt_col.dt.weekday
+        df["order_purchase_hour"] = dt_col.dt.hour
         
-        # 3. Delivery Time and Delivery Delay (in days)
+        # 3. Physical Features (Volume, Density, Weight/Volume per Quantity)
+        logger.info("Calculating physical features...")
+        df["product_volume_cm3"] = df["product_length_cm"] * df["product_height_cm"] * df["product_width_cm"]
+        df["product_volume_cm3"] = df["product_volume_cm3"].fillna(df["product_volume_cm3"].median())
+        df["product_density_g_cm3"] = df["product_weight_g"] / (df["product_volume_cm3"] + 1)
+        df["product_density_g_cm3"] = df["product_density_g_cm3"].fillna(df["product_density_g_cm3"].median())
+        
+        df["total_weight_g"] = df["product_weight_g"] * df["num_items_ordered"]
+        df["total_volume_cm3"] = df["product_volume_cm3"] * df["num_items_ordered"]
+        
+        # 4. Spatial Distance
+        logger.info("Calculating seller-customer spatial distance...")
+        df["spatial_dist"] = np.sqrt(
+            (df["customer_lat"] - df["seller_lat"])**2 + 
+            (df["customer_lng"] - df["seller_lng"])**2
+        )
+        df["spatial_dist"] = df["spatial_dist"].fillna(df["spatial_dist"].mean())
+        
+        # 4b. Delivery Features (needed for EDA and plotting, but excluded from modeling)
         logger.info("Calculating delivery features...")
-        # For rows with null delivery date, we will drop them or handle them later
         df["delivery_time"] = (df["order_delivered_customer_date"] - df["order_purchase_timestamp"]).dt.total_seconds() / (24 * 3600)
         df["delivery_delay"] = (df["order_delivered_customer_date"] - df["order_estimated_delivery_date"]).dt.total_seconds() / (24 * 3600)
-        
-        # Clip negative delivery times to 0 (data entry errors)
         df["delivery_time"] = df["delivery_time"].clip(lower=0)
+        # Fill NaNs with median/mean of the available data
+        df["delivery_time"] = df["delivery_time"].fillna(df["delivery_time"].median())
+        df["delivery_delay"] = df["delivery_delay"].fillna(df["delivery_delay"].median())
         
-        # 4. Customer-level features
+        # 5. Customer-level features (historical statistics only)
         logger.info("Calculating customer-level features...")
         cust_stats = df.groupby("customer_unique_id").agg(
             customer_lifetime_value=(TARGET_COLUMN, "sum"),
             number_of_orders=("order_id", "nunique")
         ).reset_index()
         cust_stats["revenue_per_customer"] = cust_stats["customer_lifetime_value"] / cust_stats["number_of_orders"]
-        
         df = pd.merge(df, cust_stats, on="customer_unique_id", how="left")
         
-        # 5. Seller-level features
+        # 6. Seller-level features
         logger.info("Calculating seller-level features...")
         seller_stats = df.groupby("seller_id").agg(
             revenue_per_seller=("total_price", "sum")
         ).reset_index()
         df = pd.merge(df, seller_stats, on="seller_id", how="left")
         
-        # 6. Product popularity
+        # 7. Product popularity
         logger.info("Calculating product popularity...")
         prod_stats = df.groupby("product_id").agg(
             product_popularity=("order_id", "count")
         ).reset_index()
         df = pd.merge(df, prod_stats, on="product_id", how="left")
         
-        # 7. Monthly and Weekly Revenue (historical aggregations)
+        # 8. Monthly and Weekly Revenue (aggregations)
         logger.info("Calculating monthly and weekly revenue aggregations...")
-        
-        # Group by Year-Month to get monthly revenue
         df["year_month"] = df["order_purchase_timestamp"].dt.to_period("M")
         monthly_rev = df.groupby("year_month")[TARGET_COLUMN].sum().reset_index()
         monthly_rev.rename(columns={TARGET_COLUMN: "monthly_revenue"}, inplace=True)
         df = pd.merge(df, monthly_rev, on="year_month", how="left")
         df.drop(columns=["year_month"], inplace=True)
         
-        # Group by Year-Week to get weekly revenue
         df["year_week"] = df["order_purchase_timestamp"].dt.to_period("W")
         weekly_rev = df.groupby("year_week")[TARGET_COLUMN].sum().reset_index()
         weekly_rev.rename(columns={TARGET_COLUMN: "weekly_revenue"}, inplace=True)
         df = pd.merge(df, weekly_rev, on="year_week", how="left")
         df.drop(columns=["year_week"], inplace=True)
         
-        # 8. Clean up missing values generated during calculations (e.g. delivery time is null for non-delivered orders)
-        # We will drop rows where order_delivered_customer_date is null for regression models
-        # and fill other nulls with median/mean
-        initial_count = len(df)
-        df = df.dropna(subset=["order_delivered_customer_date", "delivery_time", "delivery_delay"])
-        logger.info(f"Dropped {initial_count - len(df)} orders that were not delivered (remaining: {len(df)}).")
+        # 9. Clean up missing values / drop non-delivered for safety if desired,
+        # but here we keep all orders and fill any NaNs.
+        df["product_weight_g"] = df["product_weight_g"].fillna(df["product_weight_g"].median())
+        df["product_length_cm"] = df["product_length_cm"].fillna(df["product_length_cm"].median())
+        df["product_height_cm"] = df["product_height_cm"].fillna(df["product_height_cm"].median())
+        df["product_width_cm"] = df["product_width_cm"].fillna(df["product_width_cm"].median())
         
         logger.info(f"Feature engineering completed! DataFrame shape: {df.shape}")
         return df

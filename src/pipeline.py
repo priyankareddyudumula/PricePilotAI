@@ -75,18 +75,26 @@ def run_pipeline():
         logger.info("STEP 6: Exploratory Data Analysis & Profiling...")
         run_eda_pipeline(engineered_df, cleaned_dfs)
         
-        # 7. Feature Selection
-        logger.info("STEP 7: Feature Encoding, Scaling & Selection...")
-        X_scaled, X_raw, y, top_features, importance_df = preprocess_and_select_features(engineered_df)
-        
-        # 8. Train/Test Split
-        logger.info("STEP 8: Train/Test Split...")
-        # Train on the top selected features
-        X_model = X_scaled[top_features]
-        X_train, X_test, y_train, y_test = train_test_split(
-            X_model, y, test_size=TEST_SIZE, random_state=RANDOM_STATE
+        # 7. Train/Test Split
+        logger.info("STEP 7: Train/Test Split...")
+        engineered_df = engineered_df.reset_index(drop=True)
+        train_df, test_df = train_test_split(
+            engineered_df, test_size=TEST_SIZE, random_state=RANDOM_STATE
         )
+        
+        # 8. Feature Selection, Encoding & Scaling
+        logger.info("STEP 8: Feature Encoding, Scaling & Selection...")
+        X_train_scaled, X_test_scaled, y_train, y_test, top_features, importance_df = preprocess_and_select_features(train_df, test_df)
+        
+        # Train on the top selected features
+        X_train = X_train_scaled[top_features]
+        X_test = X_test_scaled[top_features]
         logger.info(f"Train Shape: {X_train.shape}, Test Shape: {X_test.shape}")
+        
+        # Reconstruct combined datasets for validation plotting with unique indices
+        X_model = pd.concat([X_train, X_test]).reset_index(drop=True)
+        X_raw = X_model
+        y = pd.concat([y_train, y_test]).reset_index(drop=True)
         
         # 9. Model Training & Comparison
         logger.info("STEP 9: Training 10 Regressors & Comparing Performance...")
@@ -154,8 +162,8 @@ def run_pipeline():
         
         # Evaluate Tuned Model
         y_pred_tuned = tuned_model.predict(X_test)
-        tuned_metrics = train_and_eval_model(best_model_name, X_train, X_test, y_train, y_test, run_cv=False)[2]
-        logger.info(f"Tuned {best_model_name} R2 Score: {r2_score(y_test, y_pred_tuned):.4f}")
+        tuned_r2 = r2_score(y_test, y_pred_tuned)
+        logger.info(f"Tuned {best_model_name} R2 Score: {tuned_r2:.4f}")
         
         # 11. Model Visualisations
         logger.info("STEP 11: Generating Model Evaluation Plots...")
