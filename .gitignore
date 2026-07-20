@@ -28,3 +28,8 @@ logs/
 
 # HTML reports (large)
 *.html
+
+# Cache & Local DB
+catboost_info/
+instance/
+.pytest_cache/

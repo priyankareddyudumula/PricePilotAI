@@ -1,73 +1,159 @@
-# Price Pilot AI: Brazilian E-Commerce Exploratory Data Analysis & Machine Learning Pipeline
+# PricePilot AI: Dynamic Pricing Optimization & Revenue Intelligence System
 
-Price Pilot AI is a production-grade machine learning and data science pipeline built for the **Brazilian E-Commerce Public Dataset by Olist**. The pipeline automatically loads, cleans, merges, profiles, and feature-engineers the dataset to predict **Total Order Value (Revenue)** using 10 regression algorithms. It outputs high-resolution visualisations, interactive Plotly dashboards, model explanation reports (using SHAP), and serialized ML models.
+PricePilot AI is an enterprise-grade full-stack artificial intelligence application built for **Dynamic Pricing Optimization, Demand Forecasting, and E-Commerce Revenue Intelligence**. 
+
+It combines a **production ML pipeline** (trained on 100,000+ e-commerce orders) with a **Flask REST API backend**, **JWT Role-Based Access Control (RBAC)**, **3NF Normalized Database Schema**, and a **Glassmorphism Single-Page Web Dashboard**.
 
 ---
 
-## 📂 Project Directory Structure
+## 🏛️ System Architecture
+
+```mermaid
+graph TD
+    Client[Web Browser / Single Page App] -->|HTTP / REST + JWT| FlaskServer[Flask REST API Server]
+    FlaskServer --> Auth[JWT Role-Based Middleware]
+    Auth --> Controllers[API Route Controllers]
+    
+    Controllers -->|SQLAlchemy ORM| DB[(MySQL / SQLite 3NF Database)]
+    Controllers -->|Live Inference| MLEngine[Extra Trees ML Model Engine]
+    Controllers -->|Analytics Engine| Analytics[Data Analytics Service]
+    
+    MLEngine -->|Load best_model.pkl| ModelsDir[outputs/models/best_model.pkl]
+    Analytics -->|Master Dataset| Dataset[outputs/reports/final_cleaned_dataset.csv]
+```
+
+---
+
+## 📁 Updated Project Directory Structure
+
 ```
 Price-Pilot-AI/
-├── data/                       # Local raw Olist dataset directory
-├── notebooks/                  # Notebooks for playground analyses
-├── outputs/                    # All visual and serialized deliverables
-│   ├── plots/                  # Visualisations (PNG, 300 DPI & HTML Plotly)
-│   ├── reports/                # Profiling reports & markdown tables
-│   ├── models/                 # Pickled best performing regression model
-│   ├── shap/                   # SHAP explainability summaries & plots
-│   └── feature_importance/     # Feature selection ranking CSV reports
-├── logs/                       # Comprehensive execution logs
-├── src/                        # Modular Python source packages
-│   ├── config.py               # Settings, directories, and seeds
-│   ├── data_loader.py          # Automatic CSV scanner and loader
-│   ├── preprocessor.py         # Type conversions, duplicates, merging
-│   ├── feature_engineering.py   # Date extraction & advanced aggregations
-│   ├── eda.py                  # Seaborn, Plotly, ydata-profiling
-│   ├── feature_selection.py    # Encoders, Scalers, MI/RF/RFE selectors
-│   ├── models.py               # Regression wrappers & tuning logic
-│   ├── evaluation.py           # Evaluation plotting routines
-│   └── pipeline.py             # Main pipeline orchestrator script
-└── .gitignore                  # Git tracking rules
+├── web_app.py                  # Web Server Entry Point (http://127.0.0.1:5000)
+├── app/                        # Flask Web Application Package
+│   ├── __init__.py             # App Factory, DB & Blueprint Initialization
+│   ├── config.py               # Application & JWT Configurations
+│   ├── models.py               # 3NF Normalized SQLAlchemy Database Models
+│   ├── auth.py                 # JWT Tokens, Password Hashing & Role Decorators
+│   ├── api/                    # REST API Blueprints
+│   │   ├── auth_routes.py      # Auth Endpoints (/register, /login, /refresh, /profile)
+│   │   ├── pricing_routes.py   # AI Inference (/predict-price, /forecast-demand, /optimize-price)
+│   │   ├── dashboard_routes.py # Dashboard KPIs & Visualizations
+│   │   ├── product_routes.py   # Product CRUD & AI Price Recommendation
+│   │   ├── order_routes.py     # Order Management APIs
+│   │   └── analytics_routes.py # Model Performance & Feature Importance APIs
+│   ├── services/               # Business Logic Services
+│   │   ├── ml_service.py       # ML Model Loader & Inference Engine
+│   │   └── data_service.py     # Analytics & Aggregation Engine
+│   ├── static/                 # Frontend Web Assets
+│   │   ├── css/style.css       # Modern Glassmorphism Styling
+│   │   └── js/                 # API Client, ApexCharts Engine & SPA Logic
+│   └── templates/
+│       └── index.html          # Responsive Single Page Web Dashboard
+├── tests/                      # Automated Pytest Suite
+│   ├── conftest.py             # Test Fixtures & In-Memory DB Setup
+│   ├── test_auth.py            # Authentication & Role Tests
+│   ├── test_api.py             # REST API Tests
+│   └── test_ml_inference.py    # Price Prediction & ML Inference Tests
+├── src/                        # Modular ML Pipeline Package
+│   ├── data_loader.py          # Olist CSV Auto-loader
+│   ├── preprocessor.py         # Cleaning & Merging Logic
+│   ├── feature_engineering.py  # CLV, Delivery Delay & Seasonal Features
+│   ├── feature_selection.py   # MI, RF & RFE Feature Selectors
+│   ├── models.py               # 10 Regression Models Wrappers
+│   ├── evaluation.py          # Metric Evaluation Routines
+│   └── pipeline.py            # Full ML Pipeline Orchestrator
+└── outputs/                    # Visual & Serialized Deliverables
+    └── models/best_model.pkl   # Serialized Best Regressor Model (Extra Trees)
 ```
 
 ---
 
-## ⚙️ Step-by-Step Milestones
+## 🗄️ Database Schema (3NF Normalized)
 
-### 1. Data Preprocessing & Merging
-- **Auto-Detection**: Automatically searches candidate folders for Olist CSV datasets.
-- **Datetime Conversion**: Standardizes 8 timestamp columns across files into Pandas `datetime64[ns]`.
-- **Data Cleaning**: Drops duplicate entries and handles missing product attributes, categoricals, and ratings.
-- **Master Joining**: Merges customers, orders, items, payments, sellers, reviews, and product category translations into a master DataFrame at the order level.
-- **Spatial Aggregation**: Aggregates 1M+ geolocation lat/lng points by zip code prefix to calculate mean coordinates for customers and sellers without bloating memory.
+The database schema is fully normalized in **Third Normal Form (3NF)** with strict foreign keys, indexes, and constraints:
 
-### 2. Advanced Feature Engineering
-Engineers dynamic variables to capture customer lifetime patterns, seasonality, and delivery dynamics:
-- **Seasonality/Time**: Purchase Year, Month, Week, Day, Quarter, Weekday.
-- **Target Variable**: `total_order_value` (sum of product price and freight value).
-- **Client Metrics**: Customer Lifetime Value (CLV), Number of Orders, Revenue per Customer.
-- **Seller Metrics**: Revenue per Seller.
-- **Delivery**: Actual Delivery Time (in days), Delivery Delay (relative to estimated delivery date).
-- **Products**: Product Category Popularity.
-- **Aggregated Revenue**: Weekly and Monthly historical revenue.
-
-### 3. Exploratory Data Analysis
-Generates 12+ professional, high-resolution visual reports:
-- Missing value distributions using `missingno`.
-- Dynamic and interactive dashboards using `Plotly` (Monthly revenue, payment method pie charts, delivery delay scatterplot).
-- Key distribution plots (histograms, KDE, violin plots, boxplots).
-- Correlation matrices and bar-rankings of top sellers, categories, and states.
-- Pre-compiles an HTML dataset profiling report using `ydata-profiling`.
-
-### 4. Encoding, Scaling & Feature Selection
-- **Encoding**: Applies One-Hot Encoding to payment methods, Label Encoding to states, and Frequency Encoding to product categories.
-- **Scaling**: Standardizes numerical fields with `StandardScaler` and maps spatial coordinates with `MinMaxScaler`.
-- **Selection**: Computes feature ranking by aggregating **Mutual Information Regression**, **Random Forest Feature Importance**, and **Recursive Feature Elimination (RFE)** using a Ridge estimator.
+1. **`users`**: User account management with role authorization (`Admin`, `Pricing Manager`, `Business Analyst`).
+2. **`categories`**: Product category taxonomy and translations.
+3. **`products`**: Product catalog with dimensions, weights, and current prices.
+4. **`sellers`**: E-commerce sellers and location prefixes.
+5. **`customers`**: Customer profiles and state geolocation metadata.
+6. **`orders`**: Master purchase order records and timestamp tracking.
+7. **`order_items`**: Line items linking orders, products, sellers, prices, and freight values.
+8. **`pricing_history`**: Audit trail of manual and AI price changes.
+9. **`predictions`**: Log of ML model inferences, input feature vectors, and confidence scores.
+10. **`revenue_analytics`**: Aggregated period revenue statistics.
+11. **`demand_forecasts`**: Daily projected unit demand.
+12. **`audit_logs`**: System audit trail of security and API activity.
 
 ---
 
-## 📊 Regression Model Comparison & Rankings
+## 🔌 Complete REST API Specification
 
-The pipeline trains 10 regressor algorithms using a train/test split, performs 5-fold cross-validation, and ranks them:
+### 🔑 Authentication API (`/api/auth`)
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Register new user account | Public |
+| `POST` | `/api/auth/login` | Authenticate user & receive JWT tokens | Public |
+| `POST` | `/api/auth/logout` | Revoke user session | Protected |
+| `POST` | `/api/auth/refresh` | Obtain new access token using refresh token | Public |
+| `GET` | `/api/auth/profile` | Fetch authenticated user profile | Protected |
+| `PUT` | `/api/auth/profile` | Update account profile details | Protected |
+
+### 🤖 AI Pricing & ML Inference API (`/api/pricing`)
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `POST` | `/api/pricing/predict-price` | Predict optimal price using Extra Trees ML model | Protected |
+| `POST` | `/api/pricing/forecast-demand` | Generate 30-day demand forecast | Protected |
+| `POST` | `/api/pricing/optimize-price` | Compute price elasticity curve and maximum profit point | Admin / Pricing Manager |
+
+### 📊 Dashboard & Intelligence API (`/api/dashboard`)
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/api/dashboard/summary` | Get 8 Core KPI Card metrics | Public |
+| `GET` | `/api/dashboard/monthly-revenue` | Get 2017 vs 2018 monthly revenue trends | Public |
+| `GET` | `/api/dashboard/weekly-revenue` | Get weekly order & revenue distribution | Public |
+| `GET` | `/api/dashboard/top-products` | Get top revenue-generating product categories | Public |
+| `GET` | `/api/dashboard/top-sellers` | Get top fulfilling sellers | Public |
+| `GET` | `/api/dashboard/customer-insights` | Get customer state breakdown & payment stats | Public |
+
+### 📦 Product Management API (`/api/products`)
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/api/products` | List paginated products with search filter | Public |
+| `POST` | `/api/products` | Create new product | Admin / Pricing Manager |
+| `PUT` | `/api/products/<id>` | Update product details & price | Admin / Pricing Manager |
+| `DELETE` | `/api/products/<id>` | Delete product from catalog | Admin |
+
+---
+
+## ⚡ Quick Start & Running Instructions
+
+### 1. Install Dependencies
+```bash
+pip install -r requirements.txt
+# Or install core full-stack dependencies directly:
+pip install flask flask-sqlalchemy flask-bcrypt pyjwt flask-cors pytest pandas numpy scikit-learn xgboost lightgbm catboost
+```
+
+### 2. Launch Web Application & Dashboard
+```bash
+python web_app.py
+```
+Open your browser and navigate to: **`http://127.0.0.1:5000`**
+
+Default test accounts initialized automatically:
+- **Admin**: `admin@pricepilot.ai` / `admin123`
+- **Pricing Manager**: `pricing@pricepilot.ai` / `pricing123`
+- **Business Analyst**: `analyst@pricepilot.ai` / `analyst123`
+
+### 3. Run Automated Tests
+```bash
+python -m pytest tests/ -v
+```
+
+---
+
+## 📊 Machine Learning Regressor Rankings
 
 | Rank | Model Name | R² Score | CV Score (R²) | RMSE (BRL) | MAE (BRL) |
 |---|---|---|---|---|---|
@@ -81,32 +167,3 @@ The pipeline trains 10 regressor algorithms using a train/test split, performs 5
 | 8 | XGBoost Regressor | 0.9709 | 0.8628 | 35.55 | 11.23 |
 | 9 | LightGBM Regressor | 0.9703 | 0.8696 | 35.89 | 11.66 |
 | 10 | CatBoost Regressor | 0.9679 | 0.8871 | 37.29 | 12.04 |
-
-*Note: Models are trained on the top 15 selected features to maintain generalization and avoid direct leakage.*
-
----
-
-## 🧠 Model Explainability (SHAP)
-Integrates SHAP (SHapley Additive exPlanations) on the best-tuned model:
-- **Summary Plot**: Displays overall feature influence on e-commerce order revenue.
-- **Beeswarm Plot**: Visualizes the density of high/low feature values and their directional impact on predictions.
-- **Waterfall Plot**: Traces individual prediction pathways step-by-step for a single transaction.
-
----
-
-## 🚀 Execution Instructions
-
-### Installation
-Ensure you have Python installed, then install the dependencies:
-```bash
-pip install pandas numpy scikit-learn matplotlib seaborn plotly missingno yellowbrick xgboost lightgbm catboost shap tqdm ydata-profiling setuptools==69.5.1
-```
-
-### Run the Pipeline
-Run the orchestrator from the project root directory:
-```bash
-python -m src.pipeline
-```
-
-Monitor live console updates or check execution details in `logs/pipeline.log`.
-All generated visuals, CSV importance logs, and the serialized model (`best_model.pkl`) will be exported to `outputs/`.
