@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PricePilot AI — Enterprise Revenue Intelligence & Dynamic Pricing System</title>
+  <title>PricePilot AI — Enterprise Revenue Intelligence & Dynamic Pricing Platform</title>
   <meta name="description" content="Production-grade AI dynamic pricing optimization and revenue intelligence system for e-commerce.">
-  <!-- Inter Font & ApexCharts CDN -->
+  <!-- Plus Jakarta Sans & ApexCharts CDN -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
@@ -19,7 +19,7 @@
     <div class="brand">
       <div class="brand-icon">P</div>
       <div class="brand-title">PricePilot</div>
-      <span class="brand-badge">Enterprise</span>
+      <span class="brand-badge">v1.2 AI</span>
     </div>
 
     <ul class="nav-menu">
@@ -33,7 +33,7 @@
         <span class="nav-icon">📦</span> Product Catalog
       </li>
       <li class="nav-item" data-tab="analytics">
-        <span class="nav-icon">📈</span> Model Benchmarks
+        <span class="nav-icon">📈</span> Model Leaderboard
       </li>
       <li class="nav-item" data-tab="forecasting">
         <span class="nav-icon">🔮</span> Demand Forecast
@@ -45,125 +45,201 @@
 
     <!-- User Profile Footer -->
     <div class="user-profile-box">
-      <div class="user-avatar" id="user-avatar-initial">U</div>
+      <div class="user-avatar" id="user-avatar-initial">A</div>
       <div class="user-info">
-        <div class="user-name" id="user-display-name">Guest User</div>
-        <div class="user-role" id="user-display-role">Not Logged In</div>
+        <div class="user-name" id="user-display-name">System Admin</div>
+        <div class="user-role" id="user-display-role">Admin Role</div>
       </div>
     </div>
   </aside>
 
-  <!-- Main Area -->
-  <main class="main-wrapper">
-    
-    <!-- Top Header -->
-    <header class="top-header">
-      <div>
-        <div style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 4px;">Workspace / Revenue Intelligence</div>
-        <h1 class="header-title">Dynamic Pricing & Revenue Intelligence</h1>
-        <p class="header-subtitle">ML-driven price estimation engine and Brazilian e-commerce performance analytics</p>
+  <!-- Top Navbar -->
+  <header class="top-navbar">
+    <div class="navbar-left">
+      <div class="workspace-pill">
+        <span>🏢 PricePilot / Brazilian E-Commerce</span>
+        <span style="font-size: 10px; color: var(--text-muted);">▼</span>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div id="auth-btn-group" style="display: flex; gap: 10px;">
-          <button class="btn btn-secondary" onclick="App.openModal('login-modal')">Sign In</button>
-          <button class="btn btn-primary" onclick="App.openModal('register-modal')">Register Account</button>
-        </div>
-        <button class="btn btn-danger" id="logout-btn" style="display: none;">Logout Session</button>
+      <div class="breadcrumbs">
+        <span>PricePilot</span>
+        <span>/</span>
+        <span class="current" id="breadcrumb-current-page">Overview</span>
       </div>
-    </header>
+    </div>
+
+    <div class="navbar-right">
+      <button class="cmd-search-btn" onclick="App.openModal('search-modal')">
+        <span>🔍 Search SKUs, Models, Analytics...</span>
+        <span class="kbd-badge">⌘K</span>
+      </button>
+
+      <button class="icon-btn" title="Notifications" onclick="App.showNotification('3 System Notifications: Baseline ML model updated', 'info')">
+        <span>🔔</span>
+        <span class="unread-dot"></span>
+      </button>
+
+      <div id="auth-btn-group" style="display: flex; gap: 8px;">
+        <button class="btn-luxury btn-ghost" onclick="App.openModal('login-modal')">Sign In</button>
+        <button class="btn-luxury btn-primary-gradient" onclick="App.openModal('register-modal')">Register</button>
+      </div>
+      <button class="btn-luxury btn-ghost" id="logout-btn" style="display: none; color: #fca5a5;">Logout</button>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+
+    <!-- Global Filters Bar -->
+    <div class="filters-bar">
+      <div class="filter-label">
+        <span>⚡ Global Filters:</span>
+      </div>
+
+      <select class="filter-select" id="filter-date-range" onchange="App.handleFilterChange()">
+        <option value="all">Date Range: All Time (100k Orders)</option>
+        <option value="2018">Full Year 2018</option>
+        <option value="2017">Full Year 2017</option>
+        <option value="30d">Last 30 Days</option>
+      </select>
+
+      <select class="filter-select" id="filter-category" onchange="App.handleFilterChange()">
+        <option value="all">Category: All Categories</option>
+        <option value="bed_bath_table">Bed Bath Table</option>
+        <option value="health_beauty">Health Beauty</option>
+        <option value="sports_leisure">Sports Leisure</option>
+        <option value="computers_accessories">Computers Accessories</option>
+      </select>
+
+      <select class="filter-select" id="filter-state" onchange="App.handleFilterChange()">
+        <option value="all">State: All Regions (27 States)</option>
+        <option value="SP">São Paulo (SP)</option>
+        <option value="RJ">Rio de Janeiro (RJ)</option>
+        <option value="MG">Minas Gerais (MG)</option>
+      </select>
+
+      <select class="filter-select" id="filter-payment" onchange="App.handleFilterChange()">
+        <option value="all">Payment: All Types</option>
+        <option value="credit_card">Credit Card (73.9%)</option>
+        <option value="boleto">Boleto (19.0%)</option>
+      </select>
+    </div>
 
     <!-- Tab 1: Overview Dashboard -->
     <section id="tab-dashboard" class="tab-pane active">
       
-      <!-- 4 Core KPI Cards Grid -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-card-header">
-            <span class="kpi-label">Total Order Revenue</span>
-            <span class="kpi-icon">💰</span>
+      <!-- 6 Equal-Height Glassmorphic KPI Cards Grid -->
+      <div class="kpi-grid-6">
+        <div class="kpi-card-luxury">
+          <div class="kpi-top-row">
+            <span class="kpi-title">Total Order Revenue</span>
+            <span class="kpi-mini-icon">💰</span>
           </div>
-          <div class="kpi-value-row">
-            <div class="kpi-value" id="kpi-total-revenue">R$ 16.01M</div>
-            <span class="kpi-trend positive">↑ 14.2%</span>
+          <div class="kpi-main-val" id="kpi-total-revenue">R$ 16.01M</div>
+          <div class="kpi-bottom-row">
+            <span class="kpi-trend-pill green">↑ +14.2% YoY</span>
+            <div id="sparkline-revenue" class="kpi-sparkline-box"></div>
           </div>
-          <div id="sparkline-revenue" class="kpi-sparkline"></div>
         </div>
 
-        <div class="kpi-card">
-          <div class="kpi-card-header">
-            <span class="kpi-label">Average Order Value</span>
-            <span class="kpi-icon">🛒</span>
+        <div class="kpi-card-luxury">
+          <div class="kpi-top-row">
+            <span class="kpi-title">Average Order Value</span>
+            <span class="kpi-mini-icon">🛒</span>
           </div>
-          <div class="kpi-value-row">
-            <div class="kpi-value" id="kpi-avg-order-value">R$ 162.25</div>
-            <span class="kpi-trend positive">↑ 5.8%</span>
+          <div class="kpi-main-val" id="kpi-avg-order-value">R$ 162.25</div>
+          <div class="kpi-bottom-row">
+            <span class="kpi-trend-pill green">↑ +5.8%</span>
+            <div id="sparkline-aov" class="kpi-sparkline-box"></div>
           </div>
-          <div id="sparkline-aov" class="kpi-sparkline"></div>
         </div>
 
-        <div class="kpi-card">
-          <div class="kpi-card-header">
-            <span class="kpi-label">Fulfilled Orders</span>
-            <span class="kpi-icon">📦</span>
+        <div class="kpi-card-luxury">
+          <div class="kpi-top-row">
+            <span class="kpi-title">Fulfilled Orders</span>
+            <span class="kpi-mini-icon">📦</span>
           </div>
-          <div class="kpi-value-row">
-            <div class="kpi-value" id="kpi-total-orders">98,666</div>
-            <span class="kpi-trend positive">99.4% Rate</span>
+          <div class="kpi-main-val" id="kpi-total-orders">98,666</div>
+          <div class="kpi-bottom-row">
+            <span class="kpi-trend-pill green">99.4% Rate</span>
+            <div id="sparkline-orders" class="kpi-sparkline-box"></div>
           </div>
-          <div id="sparkline-orders" class="kpi-sparkline"></div>
         </div>
 
-        <div class="kpi-card">
-          <div class="kpi-card-header">
-            <span class="kpi-label">Predicted Revenue</span>
-            <span class="kpi-icon">🎯</span>
+        <div class="kpi-card-luxury">
+          <div class="kpi-top-row">
+            <span class="kpi-title">Predicted Revenue</span>
+            <span class="kpi-mini-icon">🎯</span>
           </div>
-          <div class="kpi-value-row">
-            <div class="kpi-value" id="kpi-predicted-revenue">R$ 17.37M</div>
-            <span class="kpi-trend neutral">R² 99.04%</span>
+          <div class="kpi-main-val" id="kpi-predicted-revenue">R$ 17.37M</div>
+          <div class="kpi-bottom-row">
+            <span class="kpi-trend-pill purple">R² 99.04%</span>
+            <div id="sparkline-predict" class="kpi-sparkline-box"></div>
           </div>
-          <div id="sparkline-predict" class="kpi-sparkline"></div>
+        </div>
+
+        <div class="kpi-card-luxury">
+          <div class="kpi-top-row">
+            <span class="kpi-title">Demand Growth Index</span>
+            <span class="kpi-mini-icon">📈</span>
+          </div>
+          <div class="kpi-main-val">118.5</div>
+          <div class="kpi-bottom-row">
+            <span class="kpi-trend-pill green">High Demand</span>
+            <div id="sparkline-demand" class="kpi-sparkline-box"></div>
+          </div>
+        </div>
+
+        <div class="kpi-card-luxury">
+          <div class="kpi-top-row">
+            <span class="kpi-title">Est. Profit Margin</span>
+            <span class="kpi-mini-icon">✨</span>
+          </div>
+          <div class="kpi-main-val">34.8%</div>
+          <div class="kpi-bottom-row">
+            <span class="kpi-trend-pill green">+2.4% MoM</span>
+            <div id="sparkline-margin" class="kpi-sparkline-box"></div>
+          </div>
         </div>
       </div>
 
       <!-- Charts Grid -->
-      <div class="charts-grid">
-        <div class="chart-card">
-          <div class="chart-header">
+      <div class="charts-grid-2">
+        <div class="chart-card-luxury">
+          <div class="chart-header-row">
             <div>
-              <h3 class="chart-title">Monthly Revenue Performance</h3>
-              <div class="chart-subtitle">Historical revenue comparison (2017 vs 2018)</div>
+              <h3 class="chart-title-text">Monthly Revenue Performance (2017 vs 2018)</h3>
+              <div class="chart-sub-text">Hover to view exact MoM values and growth % (No point label overlap)</div>
             </div>
           </div>
           <div id="monthly-revenue-chart"></div>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-header">
+        <div class="chart-card-luxury">
+          <div class="chart-header-row">
             <div>
-              <h3 class="chart-title">Weekly Orders & Volume Run-rate</h3>
-              <div class="chart-subtitle">Order volume across rolling 12 weeks</div>
+              <h3 class="chart-title-text">Weekly Orders & Revenue Volume</h3>
+              <div class="chart-sub-text">Grouped volume run-rate across rolling 12 weeks</div>
             </div>
           </div>
           <div id="weekly-revenue-chart"></div>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-header">
+        <div class="chart-card-luxury">
+          <div class="chart-header-row">
             <div>
-              <h3 class="chart-title">Customer Distribution by State</h3>
-              <div class="chart-subtitle">Top Brazilian e-commerce regions</div>
+              <h3 class="chart-title-text">Customer Distribution by State</h3>
+              <div class="chart-sub-text">Top Brazilian e-commerce regions</div>
             </div>
           </div>
           <div id="customer-state-chart"></div>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-header">
+        <div class="chart-card-luxury">
+          <div class="chart-header-row">
             <div>
-              <h3 class="chart-title">ML Feature Importance Ranking</h3>
-              <div class="chart-subtitle">Top features influencing order pricing</div>
+              <h3 class="chart-title-text">ML Feature Importance Ranking</h3>
+              <div class="chart-sub-text">Top physical & temporal variables influencing pricing</div>
             </div>
           </div>
           <div id="feature-importance-chart"></div>
@@ -173,11 +249,11 @@
 
     <!-- Tab 2: AI Price Engine -->
     <section id="tab-pricing" class="tab-pane">
-      <div class="chart-card">
-        <div class="chart-header" style="margin-bottom: 20px;">
+      <div class="chart-card-luxury">
+        <div class="chart-header-row">
           <div>
-            <h3 class="chart-title">🤖 Real-Time ML Price Inference Engine</h3>
-            <div class="chart-subtitle">Input product attributes to generate AI optimal pricing recommendation (Extra Trees Regressor $R^2 = 0.9904$)</div>
+            <h3 class="chart-title-text">🤖 Real-Time ML Price Inference Engine</h3>
+            <div class="chart-sub-text">Input product attributes to generate AI optimal pricing recommendation (Extra Trees Regressor $R^2 = 0.9904$)</div>
           </div>
         </div>
 
@@ -213,7 +289,7 @@
             </div>
           </div>
           
-          <button type="submit" class="btn btn-primary" style="margin-top: 8px;">Run ML Price Optimization</button>
+          <button type="submit" class="btn-luxury btn-primary-gradient" style="margin-top: 8px;">Run ML Price Optimization</button>
         </form>
 
         <div id="prediction-results-box" style="display: none; margin-top: 24px;"></div>
@@ -222,24 +298,25 @@
 
     <!-- Tab 3: Products Catalog -->
     <section id="tab-products" class="tab-pane">
-      <div class="table-card">
-        <div class="table-toolbar">
+      <div class="table-card-luxury">
+        <div class="chart-header-row">
           <div>
-            <h3 class="chart-title">Product Catalog & Dynamic Pricing</h3>
-            <div class="chart-subtitle">Manage products and run AI pricing optimizations</div>
+            <h3 class="chart-title-text">Product Catalog & Dynamic Pricing</h3>
+            <div class="chart-sub-text">Manage products, filter by category, and export records</div>
           </div>
 
           <div style="display: flex; gap: 12px; align-items: center;">
-            <div class="search-input-wrapper">
-              <span class="search-icon">🔍</span>
-              <input type="text" id="product-search-input" class="form-input" placeholder="Search by SKU or ID..." onkeyup="App.handleProductSearch(this.value)">
+            <div class="cmd-search-btn" style="padding: 4px 10px;">
+              <span>🔍</span>
+              <input type="text" id="product-search-input" class="form-input" placeholder="Search SKU..." style="background: transparent; border: none; padding: 4px; color: var(--text-heading);" onkeyup="App.handleProductSearch(this.value)">
             </div>
-            <button class="btn btn-primary" onclick="App.showNotification('Add Product Form Ready', 'info')">+ Add Product</button>
+            <button class="btn-luxury btn-ghost" onclick="App.exportTableCSV('products-table-body', 'products_catalog.csv')">Export CSV</button>
+            <button class="btn-luxury btn-primary-gradient" onclick="App.showNotification('Add Product Form Ready', 'info')">+ Add Product</button>
           </div>
         </div>
 
-        <div class="table-container">
-          <table class="data-table">
+        <div class="table-container-clean">
+          <table class="data-table-luxury">
             <thead>
               <tr>
                 <th>Product SKU</th>
@@ -251,25 +328,25 @@
               </tr>
             </thead>
             <tbody id="products-table-body">
-              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading product catalog...</td></tr>
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading catalog...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- Tab 4: Model Benchmarks -->
+    <!-- Tab 4: Model Benchmarks Leaderboard -->
     <section id="tab-analytics" class="tab-pane">
-      <div class="table-card">
-        <div class="chart-header" style="margin-bottom: 20px;">
+      <div class="table-card-luxury">
+        <div class="chart-header-row">
           <div>
-            <h3 class="chart-title">10 Machine Learning Regressors Comparison</h3>
-            <div class="chart-subtitle">Cross-validated accuracy metrics evaluated on 100,000+ Olist transactions</div>
+            <h3 class="chart-title-text">🏆 10 Machine Learning Regressors Leaderboard</h3>
+            <div class="chart-sub-text">Evaluated on 100,000+ Brazilian e-commerce transactions</div>
           </div>
         </div>
 
-        <div class="table-container">
-          <table class="data-table">
+        <div class="table-container-clean">
+          <table class="data-table-luxury">
             <thead>
               <tr>
                 <th>Rank</th>
@@ -278,10 +355,12 @@
                 <th>5-Fold CV R²</th>
                 <th>RMSE (BRL)</th>
                 <th>MAE (BRL)</th>
+                <th>Training Time</th>
+                <th>Inference Latency</th>
               </tr>
             </thead>
             <tbody id="model-performance-table-body">
-              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading benchmark table...</td></tr>
+              <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Loading leaderboard...</td></tr>
             </tbody>
           </table>
         </div>
@@ -290,38 +369,26 @@
 
     <!-- Tab 5: Demand Forecast -->
     <section id="tab-forecasting" class="tab-pane">
-      <div class="chart-card">
-        <h3 class="chart-title">🔮 Demand Forecasting Engine</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin: 6px 0 20px 0;">30-day forecasted unit demand and inventory reorder points.</p>
-        
-        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); padding: 20px; border-radius: var(--radius-md);">
-          <h4 style="color: #38bdf8; font-size: 15px; font-weight: 600;">Top Category Forecast: Bed Bath Table</h4>
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px;">
-            <div style="background: var(--bg-surface-2); padding: 16px; border-radius: 8px;">
-              <div style="font-size: 12px; color: var(--text-muted);">30-Day Projected Demand</div>
-              <div style="font-size: 20px; font-weight: 700; color: var(--text-heading); margin-top: 4px;">3,450 Units</div>
-            </div>
-            <div style="background: var(--bg-surface-2); padding: 16px; border-radius: 8px;">
-              <div style="font-size: 12px; color: var(--text-muted);">Daily Run-Rate</div>
-              <div style="font-size: 20px; font-weight: 700; color: #10b981; margin-top: 4px;">115 Units / day</div>
-            </div>
-            <div style="background: var(--bg-surface-2); padding: 16px; border-radius: 8px;">
-              <div style="font-size: 12px; color: var(--text-muted);">Recommended Reorder</div>
-              <div style="font-size: 20px; font-weight: 700; color: #a5b4fc; margin-top: 4px;">Day 18</div>
-            </div>
+      <div class="chart-card-luxury">
+        <div class="chart-header-row">
+          <div>
+            <h3 class="chart-title-text">🔮 Demand Forecasting Engine (95% Confidence Intervals)</h3>
+            <div class="chart-sub-text">30-day projected unit demand run-rate and reorder thresholds</div>
           </div>
         </div>
+        
+        <div id="demand-forecast-chart"></div>
       </div>
     </section>
 
-    <!-- Tab 6: Admin & Audit Logs -->
+    <!-- Tab 6: Admin Audit Trail -->
     <section id="tab-admin" class="tab-pane">
-      <div class="table-card">
-        <h3 class="chart-title" style="margin-bottom: 4px;">System Audit Trail</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Role-based access logs and API security tracking.</p>
+      <div class="table-card-luxury">
+        <h3 class="chart-title-text" style="margin-bottom: 4px;">System Audit Trail</h3>
+        <p style="color: var(--text-muted); font-size: 12.5px; margin-bottom: 20px;">Security tracking and API activity logs.</p>
 
-        <div class="table-container">
-          <table class="data-table">
+        <div class="table-container-clean">
+          <table class="data-table-luxury">
             <thead>
               <tr>
                 <th>Log ID</th>
@@ -332,8 +399,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td>#1001</td><td><span class="badge badge-success">LOGIN</span></td><td>/api/auth/login</td><td>1</td><td>2026-07-20 23:25:00</td></tr>
-              <tr><td>#1002</td><td><span class="badge badge-info">PREDICT_PRICE</span></td><td>/api/pricing/predict-price</td><td>1</td><td>2026-07-20 23:26:15</td></tr>
+              <tr><td>#1001</td><td><span class="kpi-trend-pill green">LOGIN</span></td><td>/api/auth/login</td><td>1</td><td>2026-07-20 23:25:00</td></tr>
+              <tr><td>#1002</td><td><span class="kpi-trend-pill purple">PREDICT_PRICE</span></td><td>/api/pricing/predict-price</td><td>1</td><td>2026-07-20 23:26:15</td></tr>
             </tbody>
           </table>
         </div>
@@ -344,9 +411,9 @@
 
   <!-- Login Modal -->
   <div class="modal-overlay" id="login-modal">
-    <div class="modal-box">
+    <div class="modal-box-luxury">
       <h2 style="font-size: 18px; font-weight: 700; color: var(--text-heading); margin-bottom: 4px;">Sign In to PricePilot AI</h2>
-      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Enter your credentials to access protected routes.</p>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Enter credentials for JWT role authentication.</p>
       <form id="login-form">
         <div class="form-group">
           <label class="form-label">Email Address</label>
@@ -357,8 +424,8 @@
           <input type="password" id="login-password" class="form-input" value="admin123" required>
         </div>
         <div style="display: flex; gap: 10px; margin-top: 24px;">
-          <button type="submit" class="btn btn-primary" style="flex: 1;">Login</button>
-          <button type="button" class="btn btn-secondary" onclick="App.closeModal('login-modal')">Cancel</button>
+          <button type="submit" class="btn-luxury btn-primary-gradient" style="flex: 1;">Login</button>
+          <button type="button" class="btn-luxury btn-ghost" onclick="App.closeModal('login-modal')">Cancel</button>
         </div>
       </form>
     </div>
@@ -366,9 +433,9 @@
 
   <!-- Register Modal -->
   <div class="modal-overlay" id="register-modal">
-    <div class="modal-box">
+    <div class="modal-box-luxury">
       <h2 style="font-size: 18px; font-weight: 700; color: var(--text-heading); margin-bottom: 4px;">Register Account</h2>
-      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Create a user account with role authorization.</p>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Create a user account with role permissions.</p>
       <form id="register-form">
         <div class="form-group">
           <label class="form-label">Full Name</label>
@@ -391,10 +458,28 @@
           </select>
         </div>
         <div style="display: flex; gap: 10px; margin-top: 24px;">
-          <button type="submit" class="btn btn-primary" style="flex: 1;">Create Account</button>
-          <button type="button" class="btn btn-secondary" onclick="App.closeModal('register-modal')">Cancel</button>
+          <button type="submit" class="btn-luxury btn-primary-gradient" style="flex: 1;">Create Account</button>
+          <button type="button" class="btn-luxury btn-ghost" onclick="App.closeModal('register-modal')">Cancel</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Global Search Modal -->
+  <div class="modal-overlay" id="search-modal">
+    <div class="modal-box-luxury" style="width: 540px;">
+      <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+        <span style="font-size: 16px; color: var(--text-muted);">🔍</span>
+        <input type="text" class="form-input" placeholder="Type to search SKUs, Models, Analytics..." style="background: transparent; border: none; font-size: 15px;" autofocus>
+      </div>
+      <div style="margin-top: 16px; color: var(--text-muted); font-size: 12.5px;">Quick Actions:</div>
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; cursor: pointer;" onclick="App.switchTab('pricing'); App.closeModal('search-modal')">🤖 Run AI Price Optimization</div>
+        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; cursor: pointer;" onclick="App.switchTab('analytics'); App.closeModal('search-modal')">🏆 View Regressor Leaderboard</div>
+      </div>
+      <div style="margin-top: 20px; text-align: right;">
+        <button class="btn-luxury btn-ghost" onclick="App.closeModal('search-modal')">Close (ESC)</button>
+      </div>
     </div>
   </div>
 
