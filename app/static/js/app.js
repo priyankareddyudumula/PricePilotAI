@@ -89,18 +89,18 @@ const App = {
         try {
           const res = await API.predictPrice(data);
           resultBox.innerHTML = `
-            <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid var(--border-glow); padding: 22px; border-radius: var(--radius-card);">
+            <div style="background: rgba(99, 102, 241, 0.06); border: 1px solid var(--border-medium); padding: 18px; border-radius: var(--radius-card);">
               <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
-                  <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #a5b4fc; letter-spacing: 0.04em;">🤖 ML Recommended Optimal Price</div>
-                  <div style="font-size: 32px; font-weight: 800; color: #10b981; margin: 4px 0 12px 0;">R$ ${res.predicted_price.toFixed(2)}</div>
+                  <div style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; color: #a5b4fc; letter-spacing: 0.04em;">ML Recommended Optimal Price</div>
+                  <div style="font-size: 28px; font-weight: 700; color: var(--success); margin: 4px 0 10px 0;">R$ ${res.predicted_price.toFixed(2)}</div>
                 </div>
-                <span class="badge-rank gold" style="padding: 6px 12px; font-size: 12px;">Confidence ${(res.confidence_score * 100).toFixed(1)}%</span>
+                <span class="badge-minimal primary" style="padding: 4px 10px; font-size: 11.5px;">Confidence ${(res.confidence_score * 100).toFixed(1)}%</span>
               </div>
-              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; border-top: 1px solid var(--border-subtle); pt: 12px; margin-top: 12px; font-size: 13px;">
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; border-top: 1px solid var(--border-subtle); pt: 10px; margin-top: 10px; font-size: 12.5px;">
                 <div><span style="color: var(--text-muted);">Suggested Min:</span> <strong style="color: var(--text-heading);">R$ ${res.suggested_min_price.toFixed(2)}</strong></div>
                 <div><span style="color: var(--text-muted);">Suggested Max:</span> <strong style="color: var(--text-heading);">R$ ${res.suggested_max_price.toFixed(2)}</strong></div>
-                <div><span style="color: var(--text-muted);">Model:</span> <strong style="color: #38bdf8;">${res.model_used}</strong></div>
+                <div><span style="color: var(--text-muted);">Model:</span> <strong style="color: var(--text-heading);">${res.model_used}</strong></div>
               </div>
             </div>
           `;
@@ -254,7 +254,7 @@ const App = {
         return `
           <tr>
             <td><span class="badge-rank ${rank === 1 ? 'gold' : 'standard'}">#${rank}</span></td>
-            <td><strong style="color: var(--text-heading);">${modelName}</strong> ${rank === 1 ? '🏆 (Best Model)' : ''}</td>
+            <td><strong style="color: var(--text-heading);">${modelName}</strong> ${rank === 1 ? '<span class="badge-minimal primary" style="margin-left:6px;">Best Model</span>' : ''}</td>
             <td><span class="kpi-trend-pill green">${r2.toFixed(2)}%</span></td>
             <td>${cv.toFixed(2)}%</td>
             <td>R$ ${rmse.toFixed(2)}</td>

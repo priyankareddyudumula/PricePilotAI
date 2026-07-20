@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PricePilot AI — Enterprise Revenue Intelligence & Dynamic Pricing Platform</title>
+  <title>PricePilot AI — Revenue Intelligence & Dynamic Pricing Platform</title>
   <meta name="description" content="Production-grade AI dynamic pricing optimization and revenue intelligence system for e-commerce.">
-  <!-- Plus Jakarta Sans & ApexCharts CDN -->
+  <!-- Inter Font & ApexCharts CDN -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
@@ -19,31 +19,37 @@
     <div class="brand">
       <div class="brand-icon">P</div>
       <div class="brand-title">PricePilot</div>
-      <span class="brand-badge">v1.2 AI</span>
+      <span class="brand-badge">v1.2</span>
     </div>
 
     <ul class="nav-menu">
       <li class="nav-item active" data-tab="dashboard">
-        <span class="nav-icon">📊</span> Overview
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+        Overview
       </li>
       <li class="nav-item" data-tab="pricing">
-        <span class="nav-icon">🤖</span> AI Price Engine
+        <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        AI Price Engine
       </li>
       <li class="nav-item" data-tab="products">
-        <span class="nav-icon">📦</span> Product Catalog
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Product Catalog
       </li>
       <li class="nav-item" data-tab="analytics">
-        <span class="nav-icon">📈</span> Model Leaderboard
+        <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Model Leaderboard
       </li>
       <li class="nav-item" data-tab="forecasting">
-        <span class="nav-icon">🔮</span> Demand Forecast
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1 1 12 2a10 10 0 0 1 10 10z"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20z"/></svg>
+        Demand Forecast
       </li>
       <li class="nav-item" data-tab="admin">
-        <span class="nav-icon">⚙️</span> Audit Trail
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Audit Trail
       </li>
     </ul>
 
-    <!-- User Profile Footer -->
+    <!-- User Footer -->
     <div class="user-profile-box">
       <div class="user-avatar" id="user-avatar-initial">A</div>
       <div class="user-info">
@@ -57,8 +63,8 @@
   <header class="top-navbar">
     <div class="navbar-left">
       <div class="workspace-pill">
-        <span>🏢 PricePilot / Brazilian E-Commerce</span>
-        <span style="font-size: 10px; color: var(--text-muted);">▼</span>
+        <span>PricePilot / Brazilian E-Commerce</span>
+        <svg class="icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
       </div>
 
       <div class="breadcrumbs">
@@ -70,20 +76,21 @@
 
     <div class="navbar-right">
       <button class="cmd-search-btn" onclick="App.openModal('search-modal')">
-        <span>🔍 Search SKUs, Models, Analytics...</span>
+        <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Search SKUs, Models...</span>
         <span class="kbd-badge">⌘K</span>
       </button>
 
-      <button class="icon-btn" title="Notifications" onclick="App.showNotification('3 System Notifications: Baseline ML model updated', 'info')">
-        <span>🔔</span>
+      <button class="icon-btn" title="Notifications" onclick="App.showNotification('3 Notifications: ExtraTrees model optimized', 'info')">
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         <span class="unread-dot"></span>
       </button>
 
       <div id="auth-btn-group" style="display: flex; gap: 8px;">
-        <button class="btn-luxury btn-ghost" onclick="App.openModal('login-modal')">Sign In</button>
-        <button class="btn-luxury btn-primary-gradient" onclick="App.openModal('register-modal')">Register</button>
+        <button class="btn-minimal btn-ghost-minimal" onclick="App.openModal('login-modal')">Sign In</button>
+        <button class="btn-minimal btn-primary-solid" onclick="App.openModal('register-modal')">Register</button>
       </div>
-      <button class="btn-luxury btn-ghost" id="logout-btn" style="display: none; color: #fca5a5;">Logout</button>
+      <button class="btn-minimal btn-ghost-minimal" id="logout-btn" style="display: none; color: #fca5a5;">Logout</button>
     </div>
   </header>
 
@@ -92,9 +99,7 @@
 
     <!-- Global Filters Bar -->
     <div class="filters-bar">
-      <div class="filter-label">
-        <span>⚡ Global Filters:</span>
-      </div>
+      <span class="filter-label">Global Filters:</span>
 
       <select class="filter-select" id="filter-date-range" onchange="App.handleFilterChange()">
         <option value="all">Date Range: All Time (100k Orders)</option>
@@ -128,94 +133,94 @@
     <!-- Tab 1: Overview Dashboard -->
     <section id="tab-dashboard" class="tab-pane active">
       
-      <!-- 6 Equal-Height Glassmorphic KPI Cards Grid -->
+      <!-- 6 Equal-Height Minimalist KPI Cards (Grid) -->
       <div class="kpi-grid-6">
-        <div class="kpi-card-luxury">
+        <div class="kpi-card-minimal">
           <div class="kpi-top-row">
             <span class="kpi-title">Total Order Revenue</span>
-            <span class="kpi-mini-icon">💰</span>
+            <svg class="icon-svg" style="opacity:0.5;" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           </div>
           <div class="kpi-main-val" id="kpi-total-revenue">R$ 16.01M</div>
           <div class="kpi-bottom-row">
-            <span class="kpi-trend-pill green">↑ +14.2% YoY</span>
+            <span class="kpi-trend-badge positive">↑ 14.2% YoY</span>
             <div id="sparkline-revenue" class="kpi-sparkline-box"></div>
           </div>
         </div>
 
-        <div class="kpi-card-luxury">
+        <div class="kpi-card-minimal">
           <div class="kpi-top-row">
             <span class="kpi-title">Average Order Value</span>
-            <span class="kpi-mini-icon">🛒</span>
+            <svg class="icon-svg" style="opacity:0.5;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           </div>
           <div class="kpi-main-val" id="kpi-avg-order-value">R$ 162.25</div>
           <div class="kpi-bottom-row">
-            <span class="kpi-trend-pill green">↑ +5.8%</span>
+            <span class="kpi-trend-badge positive">↑ 5.8%</span>
             <div id="sparkline-aov" class="kpi-sparkline-box"></div>
           </div>
         </div>
 
-        <div class="kpi-card-luxury">
+        <div class="kpi-card-minimal">
           <div class="kpi-top-row">
             <span class="kpi-title">Fulfilled Orders</span>
-            <span class="kpi-mini-icon">📦</span>
+            <svg class="icon-svg" style="opacity:0.5;" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           </div>
           <div class="kpi-main-val" id="kpi-total-orders">98,666</div>
           <div class="kpi-bottom-row">
-            <span class="kpi-trend-pill green">99.4% Rate</span>
+            <span class="kpi-trend-badge positive">99.4% Rate</span>
             <div id="sparkline-orders" class="kpi-sparkline-box"></div>
           </div>
         </div>
 
-        <div class="kpi-card-luxury">
+        <div class="kpi-card-minimal">
           <div class="kpi-top-row">
             <span class="kpi-title">Predicted Revenue</span>
-            <span class="kpi-mini-icon">🎯</span>
+            <svg class="icon-svg" style="opacity:0.5;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
           </div>
           <div class="kpi-main-val" id="kpi-predicted-revenue">R$ 17.37M</div>
           <div class="kpi-bottom-row">
-            <span class="kpi-trend-pill purple">R² 99.04%</span>
+            <span class="kpi-trend-badge">R² 99.04%</span>
             <div id="sparkline-predict" class="kpi-sparkline-box"></div>
           </div>
         </div>
 
-        <div class="kpi-card-luxury">
+        <div class="kpi-card-minimal">
           <div class="kpi-top-row">
             <span class="kpi-title">Demand Growth Index</span>
-            <span class="kpi-mini-icon">📈</span>
+            <svg class="icon-svg" style="opacity:0.5;" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
           </div>
           <div class="kpi-main-val">118.5</div>
           <div class="kpi-bottom-row">
-            <span class="kpi-trend-pill green">High Demand</span>
+            <span class="kpi-trend-badge positive">High Run-rate</span>
             <div id="sparkline-demand" class="kpi-sparkline-box"></div>
           </div>
         </div>
 
-        <div class="kpi-card-luxury">
+        <div class="kpi-card-minimal">
           <div class="kpi-top-row">
             <span class="kpi-title">Est. Profit Margin</span>
-            <span class="kpi-mini-icon">✨</span>
+            <svg class="icon-svg" style="opacity:0.5;" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           </div>
           <div class="kpi-main-val">34.8%</div>
           <div class="kpi-bottom-row">
-            <span class="kpi-trend-pill green">+2.4% MoM</span>
+            <span class="kpi-trend-badge positive">+2.4% MoM</span>
             <div id="sparkline-margin" class="kpi-sparkline-box"></div>
           </div>
         </div>
       </div>
 
-      <!-- Charts Grid -->
+      <!-- Financial Charts Grid -->
       <div class="charts-grid-2">
-        <div class="chart-card-luxury">
+        <div class="chart-card-minimal">
           <div class="chart-header-row">
             <div>
               <h3 class="chart-title-text">Monthly Revenue Performance (2017 vs 2018)</h3>
-              <div class="chart-sub-text">Hover to view exact MoM values and growth % (No point label overlap)</div>
+              <div class="chart-sub-text">Hover to view MoM metrics (No static point label clutter)</div>
             </div>
           </div>
           <div id="monthly-revenue-chart"></div>
         </div>
 
-        <div class="chart-card-luxury">
+        <div class="chart-card-minimal">
           <div class="chart-header-row">
             <div>
               <h3 class="chart-title-text">Weekly Orders & Revenue Volume</h3>
@@ -225,7 +230,7 @@
           <div id="weekly-revenue-chart"></div>
         </div>
 
-        <div class="chart-card-luxury">
+        <div class="chart-card-minimal">
           <div class="chart-header-row">
             <div>
               <h3 class="chart-title-text">Customer Distribution by State</h3>
@@ -235,7 +240,7 @@
           <div id="customer-state-chart"></div>
         </div>
 
-        <div class="chart-card-luxury">
+        <div class="chart-card-minimal">
           <div class="chart-header-row">
             <div>
               <h3 class="chart-title-text">ML Feature Importance Ranking</h3>
@@ -249,16 +254,16 @@
 
     <!-- Tab 2: AI Price Engine -->
     <section id="tab-pricing" class="tab-pane">
-      <div class="chart-card-luxury">
+      <div class="chart-card-minimal">
         <div class="chart-header-row">
           <div>
-            <h3 class="chart-title-text">🤖 Real-Time ML Price Inference Engine</h3>
-            <div class="chart-sub-text">Input product attributes to generate AI optimal pricing recommendation (Extra Trees Regressor $R^2 = 0.9904$)</div>
+            <h3 class="chart-title-text">Real-Time ML Price Inference Engine</h3>
+            <div class="chart-sub-text">Input product attributes to generate AI optimal pricing recommendation (Extra Trees Regressor R² = 0.9904)</div>
           </div>
         </div>
 
         <form id="predict-price-form">
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
             <div class="form-group">
               <label class="form-label">Product SKU / ID</label>
               <input type="text" id="pred-product-id" class="form-input" value="PROD_8912_BED_BATH" required>
@@ -289,34 +294,34 @@
             </div>
           </div>
           
-          <button type="submit" class="btn-luxury btn-primary-gradient" style="margin-top: 8px;">Run ML Price Optimization</button>
+          <button type="submit" class="btn-minimal btn-primary-solid" style="margin-top: 6px;">Run ML Price Optimization</button>
         </form>
 
-        <div id="prediction-results-box" style="display: none; margin-top: 24px;"></div>
+        <div id="prediction-results-box" style="display: none; margin-top: 20px;"></div>
       </div>
     </section>
 
     <!-- Tab 3: Products Catalog -->
     <section id="tab-products" class="tab-pane">
-      <div class="table-card-luxury">
+      <div class="table-card-minimal">
         <div class="chart-header-row">
           <div>
             <h3 class="chart-title-text">Product Catalog & Dynamic Pricing</h3>
             <div class="chart-sub-text">Manage products, filter by category, and export records</div>
           </div>
 
-          <div style="display: flex; gap: 12px; align-items: center;">
-            <div class="cmd-search-btn" style="padding: 4px 10px;">
-              <span>🔍</span>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="cmd-search-btn" style="padding: 3px 8px;">
+              <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input type="text" id="product-search-input" class="form-input" placeholder="Search SKU..." style="background: transparent; border: none; padding: 4px; color: var(--text-heading);" onkeyup="App.handleProductSearch(this.value)">
             </div>
-            <button class="btn-luxury btn-ghost" onclick="App.exportTableCSV('products-table-body', 'products_catalog.csv')">Export CSV</button>
-            <button class="btn-luxury btn-primary-gradient" onclick="App.showNotification('Add Product Form Ready', 'info')">+ Add Product</button>
+            <button class="btn-minimal btn-ghost-minimal" onclick="App.exportTableCSV('products-table-body', 'products_catalog.csv')">Export CSV</button>
+            <button class="btn-minimal btn-primary-solid" onclick="App.showNotification('Add Product Form Ready', 'info')">+ Add Product</button>
           </div>
         </div>
 
         <div class="table-container-clean">
-          <table class="data-table-luxury">
+          <table class="data-table-minimal">
             <thead>
               <tr>
                 <th>Product SKU</th>
@@ -337,16 +342,16 @@
 
     <!-- Tab 4: Model Benchmarks Leaderboard -->
     <section id="tab-analytics" class="tab-pane">
-      <div class="table-card-luxury">
+      <div class="table-card-minimal">
         <div class="chart-header-row">
           <div>
-            <h3 class="chart-title-text">🏆 10 Machine Learning Regressors Leaderboard</h3>
+            <h3 class="chart-title-text">10 Machine Learning Regressors Leaderboard</h3>
             <div class="chart-sub-text">Evaluated on 100,000+ Brazilian e-commerce transactions</div>
           </div>
         </div>
 
         <div class="table-container-clean">
-          <table class="data-table-luxury">
+          <table class="data-table-minimal">
             <thead>
               <tr>
                 <th>Rank</th>
@@ -369,10 +374,10 @@
 
     <!-- Tab 5: Demand Forecast -->
     <section id="tab-forecasting" class="tab-pane">
-      <div class="chart-card-luxury">
+      <div class="chart-card-minimal">
         <div class="chart-header-row">
           <div>
-            <h3 class="chart-title-text">🔮 Demand Forecasting Engine (95% Confidence Intervals)</h3>
+            <h3 class="chart-title-text">Demand Forecasting Engine (95% Confidence Intervals)</h3>
             <div class="chart-sub-text">30-day projected unit demand run-rate and reorder thresholds</div>
           </div>
         </div>
@@ -383,12 +388,12 @@
 
     <!-- Tab 6: Admin Audit Trail -->
     <section id="tab-admin" class="tab-pane">
-      <div class="table-card-luxury">
+      <div class="table-card-minimal">
         <h3 class="chart-title-text" style="margin-bottom: 4px;">System Audit Trail</h3>
-        <p style="color: var(--text-muted); font-size: 12.5px; margin-bottom: 20px;">Security tracking and API activity logs.</p>
+        <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 16px;">Security tracking and API activity logs.</p>
 
         <div class="table-container-clean">
-          <table class="data-table-luxury">
+          <table class="data-table-minimal">
             <thead>
               <tr>
                 <th>Log ID</th>
@@ -399,8 +404,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td>#1001</td><td><span class="kpi-trend-pill green">LOGIN</span></td><td>/api/auth/login</td><td>1</td><td>2026-07-20 23:25:00</td></tr>
-              <tr><td>#1002</td><td><span class="kpi-trend-pill purple">PREDICT_PRICE</span></td><td>/api/pricing/predict-price</td><td>1</td><td>2026-07-20 23:26:15</td></tr>
+              <tr><td>#1001</td><td><span class="badge-minimal primary">LOGIN</span></td><td>/api/auth/login</td><td>1</td><td>2026-07-20 23:25:00</td></tr>
+              <tr><td>#1002</td><td><span class="badge-minimal primary">PREDICT_PRICE</span></td><td>/api/pricing/predict-price</td><td>1</td><td>2026-07-20 23:26:15</td></tr>
             </tbody>
           </table>
         </div>
@@ -411,9 +416,9 @@
 
   <!-- Login Modal -->
   <div class="modal-overlay" id="login-modal">
-    <div class="modal-box-luxury">
-      <h2 style="font-size: 18px; font-weight: 700; color: var(--text-heading); margin-bottom: 4px;">Sign In to PricePilot AI</h2>
-      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Enter credentials for JWT role authentication.</p>
+    <div class="modal-box-minimal">
+      <h2 style="font-size: 16px; font-weight: 600; color: var(--text-heading); margin-bottom: 4px;">Sign In to PricePilot AI</h2>
+      <p style="color: var(--text-muted); font-size: 12.5px; margin-bottom: 16px;">Enter credentials for JWT role authentication.</p>
       <form id="login-form">
         <div class="form-group">
           <label class="form-label">Email Address</label>
@@ -423,9 +428,9 @@
           <label class="form-label">Password</label>
           <input type="password" id="login-password" class="form-input" value="admin123" required>
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 24px;">
-          <button type="submit" class="btn-luxury btn-primary-gradient" style="flex: 1;">Login</button>
-          <button type="button" class="btn-luxury btn-ghost" onclick="App.closeModal('login-modal')">Cancel</button>
+        <div style="display: flex; gap: 8px; margin-top: 20px;">
+          <button type="submit" class="btn-minimal btn-primary-solid" style="flex: 1;">Login</button>
+          <button type="button" class="btn-minimal btn-ghost-minimal" onclick="App.closeModal('login-modal')">Cancel</button>
         </div>
       </form>
     </div>
@@ -433,9 +438,9 @@
 
   <!-- Register Modal -->
   <div class="modal-overlay" id="register-modal">
-    <div class="modal-box-luxury">
-      <h2 style="font-size: 18px; font-weight: 700; color: var(--text-heading); margin-bottom: 4px;">Register Account</h2>
-      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Create a user account with role permissions.</p>
+    <div class="modal-box-minimal">
+      <h2 style="font-size: 16px; font-weight: 600; color: var(--text-heading); margin-bottom: 4px;">Register Account</h2>
+      <p style="color: var(--text-muted); font-size: 12.5px; margin-bottom: 16px;">Create a user account with role permissions.</p>
       <form id="register-form">
         <div class="form-group">
           <label class="form-label">Full Name</label>
@@ -457,9 +462,9 @@
             <option value="Admin">Admin</option>
           </select>
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 24px;">
-          <button type="submit" class="btn-luxury btn-primary-gradient" style="flex: 1;">Create Account</button>
-          <button type="button" class="btn-luxury btn-ghost" onclick="App.closeModal('register-modal')">Cancel</button>
+        <div style="display: flex; gap: 8px; margin-top: 20px;">
+          <button type="submit" class="btn-minimal btn-primary-solid" style="flex: 1;">Create Account</button>
+          <button type="button" class="btn-minimal btn-ghost-minimal" onclick="App.closeModal('register-modal')">Cancel</button>
         </div>
       </form>
     </div>
@@ -467,18 +472,18 @@
 
   <!-- Global Search Modal -->
   <div class="modal-overlay" id="search-modal">
-    <div class="modal-box-luxury" style="width: 540px;">
-      <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
-        <span style="font-size: 16px; color: var(--text-muted);">🔍</span>
-        <input type="text" class="form-input" placeholder="Type to search SKUs, Models, Analytics..." style="background: transparent; border: none; font-size: 15px;" autofocus>
+    <div class="modal-box-minimal" style="width: 500px;">
+      <div style="display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+        <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="form-input" placeholder="Search SKUs, Models, Analytics..." style="background: transparent; border: none; font-size: 14px;" autofocus>
       </div>
-      <div style="margin-top: 16px; color: var(--text-muted); font-size: 12.5px;">Quick Actions:</div>
-      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
-        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; cursor: pointer;" onclick="App.switchTab('pricing'); App.closeModal('search-modal')">🤖 Run AI Price Optimization</div>
-        <div style="padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; cursor: pointer;" onclick="App.switchTab('analytics'); App.closeModal('search-modal')">🏆 View Regressor Leaderboard</div>
+      <div style="margin-top: 14px; color: var(--text-muted); font-size: 12px;">Quick Actions:</div>
+      <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
+        <div style="padding: 8px; background: rgba(255,255,255,0.02); border-radius: 6px; cursor: pointer;" onclick="App.switchTab('pricing'); App.closeModal('search-modal')">Run AI Price Optimization</div>
+        <div style="padding: 8px; background: rgba(255,255,255,0.02); border-radius: 6px; cursor: pointer;" onclick="App.switchTab('analytics'); App.closeModal('search-modal')">View Regressor Leaderboard</div>
       </div>
-      <div style="margin-top: 20px; text-align: right;">
-        <button class="btn-luxury btn-ghost" onclick="App.closeModal('search-modal')">Close (ESC)</button>
+      <div style="margin-top: 16px; text-align: right;">
+        <button class="btn-minimal btn-ghost-minimal" onclick="App.closeModal('search-modal')">Close (ESC)</button>
       </div>
     </div>
   </div>
