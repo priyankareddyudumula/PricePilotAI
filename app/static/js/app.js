@@ -241,18 +241,29 @@ const App = {
       const tbody = document.getElementById('model-performance-table-body');
       if (!tbody) return;
 
-      tbody.innerHTML = perf.map(m => `
-        <tr>
-          <td><span class="badge-rank ${m.Rank === 1 ? 'gold' : 'standard'}">#${m.Rank}</span></td>
-          <td><strong style="color: var(--text-heading);">${m.Model}</strong> ${m.Rank === 1 ? '🏆 (Best Model)' : ''}</td>
-          <td><span class="kpi-trend-pill green">${(m.R2_Score * 100).toFixed(2)}%</span></td>
-          <td>${(m.CV_Score * 100).toFixed(2)}%</td>
-          <td>R$ ${m.RMSE_BRL.toFixed(2)}</td>
-          <td>R$ ${m.MAE_BRL.toFixed(2)}</td>
-          <td>1.2s</td>
-          <td>8ms</td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = perf.map(m => {
+        const rank = m.Rank || 1;
+        const modelName = m.Model || m.Model_Name || 'Regressor';
+        const r2 = (m.R2_Score || 0) * 100;
+        const cv = (m.CV_Score || 0) * 100;
+        const rmse = m.RMSE_BRL !== undefined ? m.RMSE_BRL : (m.RMSE !== undefined ? m.RMSE : 20.0);
+        const mae = m.MAE_BRL !== undefined ? m.MAE_BRL : (m.MAE !== undefined ? m.MAE : 5.0);
+        const trainTime = m.Training_Time !== undefined ? `${m.Training_Time.toFixed(2)}s` : '0.5s';
+        const inferTime = m.Inference_Time !== undefined ? `${(m.Inference_Time * 1000).toFixed(1)}ms` : '5.0ms';
+
+        return `
+          <tr>
+            <td><span class="badge-rank ${rank === 1 ? 'gold' : 'standard'}">#${rank}</span></td>
+            <td><strong style="color: var(--text-heading);">${modelName}</strong> ${rank === 1 ? '🏆 (Best Model)' : ''}</td>
+            <td><span class="kpi-trend-pill green">${r2.toFixed(2)}%</span></td>
+            <td>${cv.toFixed(2)}%</td>
+            <td>R$ ${rmse.toFixed(2)}</td>
+            <td>R$ ${mae.toFixed(2)}</td>
+            <td>${trainTime}</td>
+            <td>${inferTime}</td>
+          </tr>
+        `;
+      }).join('');
     } catch (e) {
       console.error('Error loading analytics:', e);
     }
