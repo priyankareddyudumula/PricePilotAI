@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PricePilot AI — Enterprise Revenue Intelligence & Dynamic Pricing System</title>
+  <meta name="description" content="Production-grade AI dynamic pricing optimization and revenue intelligence system for e-commerce.">
+  <!-- Inter Font & ApexCharts CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">P</div>
+      <div class="brand-title">PricePilot</div>
+      <span class="brand-badge">Enterprise</span>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item active" data-tab="dashboard">
+        <span class="nav-icon">📊</span> Overview
+      </li>
+      <li class="nav-item" data-tab="pricing">
+        <span class="nav-icon">🤖</span> AI Price Engine
+      </li>
+      <li class="nav-item" data-tab="products">
+        <span class="nav-icon">📦</span> Product Catalog
+      </li>
+      <li class="nav-item" data-tab="analytics">
+        <span class="nav-icon">📈</span> Model Benchmarks
+      </li>
+      <li class="nav-item" data-tab="forecasting">
+        <span class="nav-icon">🔮</span> Demand Forecast
+      </li>
+      <li class="nav-item" data-tab="admin">
+        <span class="nav-icon">⚙️</span> Audit Trail
+      </li>
+    </ul>
+
+    <!-- User Profile Footer -->
+    <div class="user-profile-box">
+      <div class="user-avatar" id="user-avatar-initial">U</div>
+      <div class="user-info">
+        <div class="user-name" id="user-display-name">Guest User</div>
+        <div class="user-role" id="user-display-role">Not Logged In</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Area -->
+  <main class="main-wrapper">
+    
+    <!-- Top Header -->
+    <header class="top-header">
+      <div>
+        <div style="font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 4px;">Workspace / Revenue Intelligence</div>
+        <h1 class="header-title">Dynamic Pricing & Revenue Intelligence</h1>
+        <p class="header-subtitle">ML-driven price estimation engine and Brazilian e-commerce performance analytics</p>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div id="auth-btn-group" style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary" onclick="App.openModal('login-modal')">Sign In</button>
+          <button class="btn btn-primary" onclick="App.openModal('register-modal')">Register Account</button>
+        </div>
+        <button class="btn btn-danger" id="logout-btn" style="display: none;">Logout Session</button>
+      </div>
+    </header>
+
+    <!-- Tab 1: Overview Dashboard -->
+    <section id="tab-dashboard" class="tab-pane active">
+      
+      <!-- 4 Core KPI Cards Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-card-header">
+            <span class="kpi-label">Total Order Revenue</span>
+            <span class="kpi-icon">💰</span>
+          </div>
+          <div class="kpi-value-row">
+            <div class="kpi-value" id="kpi-total-revenue">R$ 16.01M</div>
+            <span class="kpi-trend positive">↑ 14.2%</span>
+          </div>
+          <div id="sparkline-revenue" class="kpi-sparkline"></div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-card-header">
+            <span class="kpi-label">Average Order Value</span>
+            <span class="kpi-icon">🛒</span>
+          </div>
+          <div class="kpi-value-row">
+            <div class="kpi-value" id="kpi-avg-order-value">R$ 162.25</div>
+            <span class="kpi-trend positive">↑ 5.8%</span>
+          </div>
+          <div id="sparkline-aov" class="kpi-sparkline"></div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-card-header">
+            <span class="kpi-label">Fulfilled Orders</span>
+            <span class="kpi-icon">📦</span>
+          </div>
+          <div class="kpi-value-row">
+            <div class="kpi-value" id="kpi-total-orders">98,666</div>
+            <span class="kpi-trend positive">99.4% Rate</span>
+          </div>
+          <div id="sparkline-orders" class="kpi-sparkline"></div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-card-header">
+            <span class="kpi-label">Predicted Revenue</span>
+            <span class="kpi-icon">🎯</span>
+          </div>
+          <div class="kpi-value-row">
+            <div class="kpi-value" id="kpi-predicted-revenue">R$ 17.37M</div>
+            <span class="kpi-trend neutral">R² 99.04%</span>
+          </div>
+          <div id="sparkline-predict" class="kpi-sparkline"></div>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h3 class="chart-title">Monthly Revenue Performance</h3>
+              <div class="chart-subtitle">Historical revenue comparison (2017 vs 2018)</div>
+            </div>
+          </div>
+          <div id="monthly-revenue-chart"></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h3 class="chart-title">Weekly Orders & Volume Run-rate</h3>
+              <div class="chart-subtitle">Order volume across rolling 12 weeks</div>
+            </div>
+          </div>
+          <div id="weekly-revenue-chart"></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h3 class="chart-title">Customer Distribution by State</h3>
+              <div class="chart-subtitle">Top Brazilian e-commerce regions</div>
+            </div>
+          </div>
+          <div id="customer-state-chart"></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <h3 class="chart-title">ML Feature Importance Ranking</h3>
+              <div class="chart-subtitle">Top features influencing order pricing</div>
+            </div>
+          </div>
+          <div id="feature-importance-chart"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: AI Price Engine -->
+    <section id="tab-pricing" class="tab-pane">
+      <div class="chart-card">
+        <div class="chart-header" style="margin-bottom: 20px;">
+          <div>
+            <h3 class="chart-title">🤖 Real-Time ML Price Inference Engine</h3>
+            <div class="chart-subtitle">Input product attributes to generate AI optimal pricing recommendation (Extra Trees Regressor $R^2 = 0.9904$)</div>
+          </div>
+        </div>
+
+        <form id="predict-price-form">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Product SKU / ID</label>
+              <input type="text" id="pred-product-id" class="form-input" value="PROD_8912_BED_BATH" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Base Retail Cost (BRL)</label>
+              <input type="number" step="0.01" id="pred-base-price" class="form-input" value="129.90" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Freight Value (BRL)</label>
+              <input type="number" step="0.01" id="pred-freight" class="form-input" value="18.50" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Product Weight (grams)</label>
+              <input type="number" id="pred-weight" class="form-input" value="650" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Length (cm)</label>
+              <input type="number" id="pred-length" class="form-input" value="25" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Height (cm)</label>
+              <input type="number" id="pred-height" class="form-input" value="18" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Width (cm)</label>
+              <input type="number" id="pred-width" class="form-input" value="18" required>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="margin-top: 8px;">Run ML Price Optimization</button>
+        </form>
+
+        <div id="prediction-results-box" style="display: none; margin-top: 24px;"></div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Products Catalog -->
+    <section id="tab-products" class="tab-pane">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div>
+            <h3 class="chart-title">Product Catalog & Dynamic Pricing</h3>
+            <div class="chart-subtitle">Manage products and run AI pricing optimizations</div>
+          </div>
+
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="product-search-input" class="form-input" placeholder="Search by SKU or ID..." onkeyup="App.handleProductSearch(this.value)">
+            </div>
+            <button class="btn btn-primary" onclick="App.showNotification('Add Product Form Ready', 'info')">+ Add Product</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Product SKU</th>
+                <th>Category</th>
+                <th>Weight</th>
+                <th>Dimensions</th>
+                <th>Current Price</th>
+                <th>AI Action</th>
+              </tr>
+            </thead>
+            <tbody id="products-table-body">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading product catalog...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Model Benchmarks -->
+    <section id="tab-analytics" class="tab-pane">
+      <div class="table-card">
+        <div class="chart-header" style="margin-bottom: 20px;">
+          <div>
+            <h3 class="chart-title">10 Machine Learning Regressors Comparison</h3>
+            <div class="chart-subtitle">Cross-validated accuracy metrics evaluated on 100,000+ Olist transactions</div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Model Architecture</th>
+                <th>R² Score</th>
+                <th>5-Fold CV R²</th>
+                <th>RMSE (BRL)</th>
+                <th>MAE (BRL)</th>
+              </tr>
+            </thead>
+            <tbody id="model-performance-table-body">
+              <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading benchmark table...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Demand Forecast -->
+    <section id="tab-forecasting" class="tab-pane">
+      <div class="chart-card">
+        <h3 class="chart-title">🔮 Demand Forecasting Engine</h3>
+        <p style="color: var(--text-muted); font-size: 13px; margin: 6px 0 20px 0;">30-day forecasted unit demand and inventory reorder points.</p>
+        
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); padding: 20px; border-radius: var(--radius-md);">
+          <h4 style="color: #38bdf8; font-size: 15px; font-weight: 600;">Top Category Forecast: Bed Bath Table</h4>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px;">
+            <div style="background: var(--bg-surface-2); padding: 16px; border-radius: 8px;">
+              <div style="font-size: 12px; color: var(--text-muted);">30-Day Projected Demand</div>
+              <div style="font-size: 20px; font-weight: 700; color: var(--text-heading); margin-top: 4px;">3,450 Units</div>
+            </div>
+            <div style="background: var(--bg-surface-2); padding: 16px; border-radius: 8px;">
+              <div style="font-size: 12px; color: var(--text-muted);">Daily Run-Rate</div>
+              <div style="font-size: 20px; font-weight: 700; color: #10b981; margin-top: 4px;">115 Units / day</div>
+            </div>
+            <div style="background: var(--bg-surface-2); padding: 16px; border-radius: 8px;">
+              <div style="font-size: 12px; color: var(--text-muted);">Recommended Reorder</div>
+              <div style="font-size: 20px; font-weight: 700; color: #a5b4fc; margin-top: 4px;">Day 18</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 6: Admin & Audit Logs -->
+    <section id="tab-admin" class="tab-pane">
+      <div class="table-card">
+        <h3 class="chart-title" style="margin-bottom: 4px;">System Audit Trail</h3>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Role-based access logs and API security tracking.</p>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Log ID</th>
+                <th>Action</th>
+                <th>Endpoint</th>
+                <th>User ID</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>#1001</td><td><span class="badge badge-success">LOGIN</span></td><td>/api/auth/login</td><td>1</td><td>2026-07-20 23:25:00</td></tr>
+              <tr><td>#1002</td><td><span class="badge badge-info">PREDICT_PRICE</span></td><td>/api/pricing/predict-price</td><td>1</td><td>2026-07-20 23:26:15</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal-box">
+      <h2 style="font-size: 18px; font-weight: 700; color: var(--text-heading); margin-bottom: 4px;">Sign In to PricePilot AI</h2>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Enter your credentials to access protected routes.</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="login-email" class="form-input" value="admin@pricepilot.ai" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="login-password" class="form-input" value="admin123" required>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 24px;">
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Login</button>
+          <button type="button" class="btn btn-secondary" onclick="App.closeModal('login-modal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div class="modal-overlay" id="register-modal">
+    <div class="modal-box">
+      <h2 style="font-size: 18px; font-weight: 700; color: var(--text-heading); margin-bottom: 4px;">Register Account</h2>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Create a user account with role authorization.</p>
+      <form id="register-form">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="Akhil Senthil" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="akhil@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <select id="reg-role" class="form-select">
+            <option value="Business Analyst">Business Analyst</option>
+            <option value="Pricing Manager">Pricing Manager</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 24px;">
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Create Account</button>
+          <button type="button" class="btn btn-secondary" onclick="App.closeModal('register-modal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/charts.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
