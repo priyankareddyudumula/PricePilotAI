@@ -108,7 +108,18 @@ const App = {
     if (tabId === 'admin') this.loadAuditLogs();
   },
 
+  renderTableSkeleton(tbodyId, rows = 5, cols = 5) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    let html = '';
+    for (let r = 0; r < rows; r++) {
+      html += '<tr>' + Array(cols).fill('<td><div class="skeleton-box skeleton-text"></div></td>').join('') + '</tr>';
+    }
+    tbody.innerHTML = html;
+  },
+
   async loadAuditLogs(page = 1) {
+    this.renderTableSkeleton('audit-table-body', 5, 5);
     try {
       const res = await API.getAuditLogs(page);
       const tbody = document.getElementById('audit-table-body');
@@ -350,6 +361,7 @@ const App = {
   },
 
   async loadProducts(search = '') {
+    this.renderTableSkeleton('products-table-body', 5, 6);
     try {
       const res = await API.getProducts(1, search);
       const tbody = document.getElementById('products-table-body');
@@ -388,6 +400,7 @@ const App = {
   },
 
   async loadAnalytics() {
+    this.renderTableSkeleton('model-performance-table-body', 5, 8);
     try {
       const perf = await API.getModelPerformance();
       const tbody = document.getElementById('model-performance-table-body');
