@@ -19,3 +19,17 @@ def test_model_performance(client):
     data = res.get_json()
     assert isinstance(data, list)
     assert data[0]['Model'] == 'Extra Trees Regressor'
+
+def test_health_check(client):
+    res = client.get('/health')
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data['status'] == 'healthy'
+    assert 'X-Frame-Options' in res.headers
+
+def test_readiness_check(client):
+    res = client.get('/readiness')
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data['ready'] is True
+    assert data['checks']['database'] is True

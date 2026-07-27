@@ -14,6 +14,19 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     CORS(app)
 
+    # Initialize Flasgger Swagger UI if installed
+    try:
+        from flasgger import Swagger
+        Swagger(app, template={
+            "info": {
+                "title": "PricePilot AI API",
+                "description": "Production-grade ML Dynamic Pricing and Revenue Intelligence API",
+                "version": "1.2.0"
+            }
+        })
+    except ImportError:
+        pass
+
     # Register API Blueprints
     from app.api.auth_routes import auth_bp
     from app.api.pricing_routes import pricing_bp
@@ -22,6 +35,7 @@ def create_app(config_class=Config):
     from app.api.order_routes import order_bp
     from app.api.analytics_routes import analytics_bp
     from app.api.admin_routes import admin_bp
+    from app.api.health_routes import health_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(pricing_bp, url_prefix='/api/pricing')
@@ -30,11 +44,20 @@ def create_app(config_class=Config):
     app.register_blueprint(order_bp, url_prefix='/api/orders')
     app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(health_bp)
 
     # Main SPA Route
     @app.route('/')
     def index():
         return render_template('index.html')
+
+    # Security Headers Middleware
+    @app.after_request
+    def add_security_headers(response):
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        return response
 
     # Global Error Handlers
     @app.errorhandler(404)
