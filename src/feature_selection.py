@@ -1,11 +1,12 @@
 import logging
+import pickle
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
 from sklearn.feature_selection import mutual_info_regression, RFE
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge
-from src.config import FEATURE_IMPORTANCE_DIR, RANDOM_STATE, TARGET_COLUMN
+from src.config import FEATURE_IMPORTANCE_DIR, MODELS_DIR, RANDOM_STATE, TARGET_COLUMN
 
 logger = logging.getLogger(__name__)
 
@@ -202,6 +203,28 @@ def preprocess_and_select_features(train_df, test_df=None):
         top_features = importance_df["Feature"].head(15).tolist()
         logger.info(f"Top selected features: {top_features}")
         
+        # Save preprocessor artifact for online inference alignment
+        preprocessor_artifact = {
+            "cat_stats": cat_stats,
+            "seller_stats": seller_stats,
+            "state_stats": state_stats,
+            "global_mean_price": global_mean_price,
+            "global_mean_freight": global_mean_freight,
+            "le_state": le_state if "customer_state" in train_mapped.columns else None,
+            "freq_map": freq_map if "product_category_name_english" in train_mapped.columns else {},
+            "scaler_minmax": scaler_minmax if minmax_cols else None,
+            "scaler_std": scaler_std if std_cols else None,
+            "minmax_cols": minmax_cols,
+            "std_cols": std_cols,
+            "feature_cols": feature_cols,
+            "top_features": top_features,
+            "train_medians": X_train.median().to_dict()
+        }
+        MODELS_DIR.mkdir(parents=True, exist_ok=True)
+        with open(MODELS_DIR / "preprocessor.pkl", "wb") as f:
+            pickle.dump(preprocessor_artifact, f)
+        logger.info(f"Preprocessor artifact saved to {MODELS_DIR / 'preprocessor.pkl'}")
+
         if test_mapped is not None:
             return X_train_scaled, X_test_scaled, y_train, y_test, top_features, importance_df
         else:

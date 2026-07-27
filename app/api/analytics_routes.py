@@ -24,12 +24,16 @@ def get_sales_analytics():
 
 @analytics_bp.route('/demand-analytics', methods=['GET'])
 def get_demand_analytics():
+    top_prods = data_service.get_top_products(10)
+    cat_demand = [
+        {
+            'category': p['category'],
+            'demand_units': p['total_orders'],
+            'total_revenue': p['total_revenue'],
+            'avg_price': p['avg_price']
+        }
+        for p in top_prods
+    ]
     return jsonify({
-        'categories_demand': [
-            {'category': 'Bed Bath Table', 'demand_units': 11115, 'growth': '+12.4%'},
-            {'category': 'Health Beauty', 'demand_units': 9670, 'growth': '+18.2%'},
-            {'category': 'Sports Leisure', 'demand_units': 8640, 'growth': '+8.5%'},
-            {'category': 'Computers Accessories', 'demand_units': 7890, 'growth': '+15.1%'},
-            {'category': 'Furniture Decor', 'demand_units': 6540, 'growth': '+5.7%'}
-        ]
+        'categories_demand': cat_demand
     }), 200

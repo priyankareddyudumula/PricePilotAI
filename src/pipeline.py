@@ -21,6 +21,8 @@ from src.evaluation import (
     plot_feature_correlation_matrix, plot_model_comparison
 )
 from src.explainability import generate_shap_explanations
+from src.train_demand_forecast import train_and_save_demand_model
+from src.train_elasticity import train_and_save_elasticity_model
 
 # Configure logging
 LOG_FILE = os.path.join("logs", "pipeline.log")
@@ -213,7 +215,12 @@ def run_pipeline():
             pickle.dump(tuned_model, f)
         logger.info(f"Best model serialized successfully and exported to {best_model_path}")
         
-        # 14. Export final pipeline reports
+        # 14. Train Demand Forecasting Model & Price Elasticity Model
+        logger.info("STEP 14: Training Demand Forecasting & Price Elasticity Models...")
+        train_and_save_demand_model()
+        train_and_save_elasticity_model()
+        
+        # 15. Export final pipeline reports
         logger.info("Generating final evaluation report...")
         report_text = f"===========================================\n"
         report_text += f"       OLIST ML PIPELINE EVALUATION REPORT  \n"

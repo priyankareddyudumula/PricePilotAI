@@ -140,11 +140,46 @@ const ChartsEngine = {
     this.renderOrUpdate('featureImportance', containerId, options);
   },
 
-  initDemandForecastChart(containerId) {
-    const days = Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`);
-    const forecast = [110, 112, 115, 118, 122, 120, 125, 128, 132, 130, 135, 138, 142, 140, 145, 148, 152, 150, 155, 158, 162, 160, 165, 168, 172, 170, 175, 178, 182, 185];
-    const upperBound = forecast.map(v => Math.round(v * 1.15));
-    const lowerBound = forecast.map(v => Math.round(v * 0.85));
+  initDemandForecastChart(containerId, forecastData) {
+    if (!forecastData || !forecastData.daily_forecast) return;
+
+    const dates = forecastData.daily_forecast.map(d => d.date || `Day ${d.day}`);
+    const forecast = forecastData.daily_forecast.map(d => d.forecasted_demand);
+    const upperBound = forecastData.daily_forecast.map(d => d.upper_bound);
+    const lowerBound = forecastData.daily_forecast.map(d => d.lower_bound);
+
+    const options = {
+      chart: {
+        type: 'line',
+        height: 340,
+        toolbar: { show: true },
+        background: 'transparent',
+        fontFamily: 'Plus Jakarta Sans, sans-serif'
+      },
+      theme: { mode: 'dark' },
+      colors: ['#6366f1', '#10b981', '#ef4444'],
+      stroke: { curve: 'smooth', width: [3, 1.5, 1.5], dashArray: [0, 4, 4] },
+      dataLabels: { enabled: false },
+      series: [
+        { name: 'Projected Demand (Units)', data: forecast },
+        { name: 'Upper Bound (95% CI)', data: upperBound },
+        { name: 'Lower Bound (95% CI)', data: lowerBound }
+      ],
+      xaxis: { categories: dates, labels: { style: { colors: '#94a3b8', fontSize: '11px' } } },
+      yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '11px' } } },
+      grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 3 },
+      legend: { position: 'top', labels: { colors: '#94a3b8' } },
+      tooltip: { theme: 'dark' }
+    };
+    this.renderOrUpdate('demandForecast', containerId, options);
+  },
+
+  initPriceElasticityChart(containerId, elasticityData) {
+    if (!elasticityData || !elasticityData.elasticity_curve) return;
+
+    const prices = elasticityData.elasticity_curve.map(d => `R$ ${d.price.toFixed(2)}`);
+    const demand = elasticityData.elasticity_curve.map(d => d.projected_demand);
+    const profit = elasticityData.elasticity_curve.map(d => d.projected_profit);
 
     const options = {
       chart: {
@@ -155,21 +190,23 @@ const ChartsEngine = {
         fontFamily: 'Plus Jakarta Sans, sans-serif'
       },
       theme: { mode: 'dark' },
-      colors: ['#6366f1', '#10b981', '#ef4444'],
-      stroke: { curve: 'smooth', width: [3, 1.5, 1.5], dashArray: [0, 4, 4] },
+      colors: ['#10b981', '#a855f7'],
+      stroke: { curve: 'smooth', width: [3, 2] },
       dataLabels: { enabled: false },
       series: [
-        { name: 'Projected Demand', data: forecast },
-        { name: 'Upper Bound (95% CI)', data: upperBound },
-        { name: 'Lower Bound (95% CI)', data: lowerBound }
+        { name: 'Projected Profit (BRL)', data: profit },
+        { name: 'Expected Demand (Units)', data: demand }
       ],
-      xaxis: { categories: days, labels: { style: { colors: '#94a3b8', fontSize: '11px' } } },
-      yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '11px' } } },
+      xaxis: { categories: prices, labels: { style: { colors: '#94a3b8', fontSize: '11px' } } },
+      yaxis: [
+        { labels: { style: { colors: '#94a3b8', fontSize: '11px' }, formatter: (v) => `R$ ${v}` } },
+        { opposite: true, labels: { style: { colors: '#94a3b8', fontSize: '11px' } } }
+      ],
       grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 3 },
       legend: { position: 'top', labels: { colors: '#94a3b8' } },
       tooltip: { theme: 'dark' }
     };
-    this.renderOrUpdate('demandForecast', containerId, options);
+    this.renderOrUpdate('priceElasticity', containerId, options);
   },
 
   renderOrUpdate(key, containerId, options) {
