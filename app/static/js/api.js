@@ -94,17 +94,32 @@ const API = {
     return await this.request('/pricing/optimize-price', 'POST', { current_price: currentPrice, cost });
   },
 
+  buildQueryString(filters) {
+    if (!filters) return '';
+    const params = new URLSearchParams();
+    if (filters.range && filters.range !== 'all') params.append('range', filters.range);
+    if (filters.category && filters.category !== 'all') params.append('category', filters.category);
+    if (filters.state && filters.state !== 'all') params.append('state', filters.state);
+    if (filters.payment && filters.payment !== 'all') params.append('payment', filters.payment);
+    const str = params.toString();
+    return str ? `?${str}` : '';
+  },
+
   // Dashboard endpoints
-  async getSummary() {
-    return await this.request('/dashboard/summary');
+  async getSummary(filters = null) {
+    return await this.request('/dashboard/summary' + this.buildQueryString(filters));
   },
 
-  async getMonthlyRevenue() {
-    return await this.request('/dashboard/monthly-revenue');
+  async getMonthlyRevenue(filters = null) {
+    return await this.request('/dashboard/monthly-revenue' + this.buildQueryString(filters));
   },
 
-  async getWeeklyRevenue() {
-    return await this.request('/dashboard/weekly-revenue');
+  async getWeeklyRevenue(filters = null) {
+    return await this.request('/dashboard/weekly-revenue' + this.buildQueryString(filters));
+  },
+
+  async getProfitMarginTrend(filters = null) {
+    return await this.request('/dashboard/profit-margin' + this.buildQueryString(filters));
   },
 
   async getTopProducts() {
@@ -115,8 +130,12 @@ const API = {
     return await this.request('/dashboard/top-sellers');
   },
 
-  async getCustomerInsights() {
-    return await this.request('/dashboard/customer-insights');
+  async getCustomerInsights(filters = null) {
+    return await this.request('/dashboard/customer-insights' + this.buildQueryString(filters));
+  },
+
+  async getAuditLogs(page = 1) {
+    return await this.request(`/admin/audit-logs?page=${page}`);
   },
 
   // Analytics
