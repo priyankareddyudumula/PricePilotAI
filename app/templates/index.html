@@ -22,29 +22,29 @@
       <span class="brand-badge">v1.2</span>
     </div>
 
-    <ul class="nav-menu">
-      <li class="nav-item active" data-tab="dashboard">
-        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+    <ul class="nav-menu" role="tablist" aria-label="Main Navigation">
+      <li class="nav-item active" data-tab="dashboard" role="tab" aria-selected="true" tabindex="0" aria-controls="tab-dashboard">
+        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
         Overview
       </li>
-      <li class="nav-item" data-tab="pricing">
-        <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <li class="nav-item" data-tab="pricing" role="tab" aria-selected="false" tabindex="0" aria-controls="tab-pricing">
+        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
         AI Price Engine
       </li>
-      <li class="nav-item" data-tab="products">
-        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      <li class="nav-item" data-tab="products" role="tab" aria-selected="false" tabindex="0" aria-controls="tab-products">
+        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         Product Catalog
       </li>
-      <li class="nav-item" data-tab="analytics">
-        <svg class="icon-svg" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <li class="nav-item" data-tab="analytics" role="tab" aria-selected="false" tabindex="0" aria-controls="tab-analytics">
+        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         Model Leaderboard
       </li>
-      <li class="nav-item" data-tab="forecasting">
-        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1 1 12 2a10 10 0 0 1 10 10z"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20z"/></svg>
+      <li class="nav-item" data-tab="forecasting" role="tab" aria-selected="false" tabindex="0" aria-controls="tab-forecasting">
+        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12A10 10 0 1 1 12 2a10 10 0 0 1 10 10z"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20z"/></svg>
         Demand Forecast
       </li>
-      <li class="nav-item" data-tab="admin">
-        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <li class="nav-item" data-tab="admin" role="tab" aria-selected="false" tabindex="0" aria-controls="tab-admin">
+        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Audit Trail
       </li>
     </ul>
@@ -131,7 +131,7 @@
     </div>
 
     <!-- Tab 1: Overview Dashboard -->
-    <section id="tab-dashboard" class="tab-pane active">
+    <section id="tab-dashboard" class="tab-pane active" role="tabpanel" aria-labelledby="tab-dashboard">
       
       <!-- 6 Equal-Height Minimalist KPI Cards (Grid) -->
       <div class="kpi-grid-6">
