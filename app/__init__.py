@@ -21,6 +21,7 @@ def create_app(config_class=Config):
     from app.api.product_routes import product_bp
     from app.api.order_routes import order_bp
     from app.api.analytics_routes import analytics_bp
+    from app.api.admin_routes import admin_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(pricing_bp, url_prefix='/api/pricing')
@@ -28,6 +29,7 @@ def create_app(config_class=Config):
     app.register_blueprint(product_bp, url_prefix='/api/products')
     app.register_blueprint(order_bp, url_prefix='/api/orders')
     app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
 
     # Main SPA Route
     @app.route('/')

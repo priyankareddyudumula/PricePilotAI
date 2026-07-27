@@ -105,6 +105,35 @@ const App = {
     if (tabId === 'analytics') this.loadAnalytics();
     if (tabId === 'forecasting') this.loadDemandForecast(this.activeForecastHorizon);
     if (tabId === 'pricing') this.handlePricingFormSubmit();
+    if (tabId === 'admin') this.loadAuditLogs();
+  },
+
+  async loadAuditLogs(page = 1) {
+    try {
+      const res = await API.getAuditLogs(page);
+      const tbody = document.getElementById('audit-table-body');
+      if (!tbody) return;
+
+      if (!res.logs || res.logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No audit records found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = res.logs.map(log => `
+        <tr>
+          <td><strong style="color: var(--text-heading);">#${log.id}</strong></td>
+          <td><span class="badge-minimal primary">${log.action}</span></td>
+          <td><code>${log.endpoint}</code></td>
+          <td>User #${log.user_id} (${log.user_email || 'System'})</td>
+          <td><span style="color: var(--text-muted); font-size: 11.5px;">${log.timestamp}</span></td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      console.error('Error loading audit logs:', e);
+      const tbody = document.getElementById('audit-table-body');
+      if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #fca5a5;">Failed to load audit trail: ${e.message}</td></tr>`;
+      this.showToast('Error loading system audit trail', 'error');
+    }
   },
 
   updateUserUI() {

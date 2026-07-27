@@ -257,7 +257,7 @@
       <div class="chart-card-minimal">
         <div class="chart-header-row">
           <div>
-            <h3 class="chart-title-text">Real-Time ML Price Inference Engine</h3>
+            <h3 class="chart-title-text">Real-Time ML Price & Optimization Engine</h3>
             <div class="chart-sub-text">Input product attributes to generate AI optimal pricing recommendation (Extra Trees Regressor R² = 0.9904)</div>
           </div>
         </div>
@@ -267,6 +267,16 @@
             <div class="form-group">
               <label class="form-label">Product SKU / ID</label>
               <input type="text" id="pred-product-id" class="form-input" value="PROD_8912_BED_BATH" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select id="pred-category" class="form-select">
+                <option value="bed_bath_table">Bed Bath Table</option>
+                <option value="health_beauty">Health Beauty</option>
+                <option value="sports_leisure">Sports Leisure</option>
+                <option value="computers_accessories">Computers Accessories</option>
+                <option value="furniture_decor">Furniture Decor</option>
+              </select>
             </div>
             <div class="form-group">
               <label class="form-label">Base Retail Cost (BRL)</label>
@@ -298,6 +308,10 @@
         </form>
 
         <div id="prediction-results-box" style="display: none; margin-top: 20px;"></div>
+        <div id="price-elasticity-chart-box" style="display: none; margin-top: 24px;">
+          <h4 style="font-size: 13.5px; font-weight: 600; color: var(--text-heading); margin-bottom: 8px;">Price Elasticity & Profit Maximization Curve</h4>
+          <div id="price-elasticity-chart"></div>
+        </div>
       </div>
     </section>
 
@@ -375,10 +389,40 @@
     <!-- Tab 5: Demand Forecast -->
     <section id="tab-forecasting" class="tab-pane">
       <div class="chart-card-minimal">
-        <div class="chart-header-row">
+        <div class="chart-header-row" style="flex-wrap: wrap; gap: 12px;">
           <div>
-            <h3 class="chart-title-text">Demand Forecasting Engine (95% Confidence Intervals)</h3>
-            <div class="chart-sub-text">30-day projected unit demand run-rate and reorder thresholds</div>
+            <h3 class="chart-title-text">Multi-Horizon Demand Forecasting Engine</h3>
+            <div class="chart-sub-text">Real time-series regressor with 95% confidence bounds & trend classification</div>
+          </div>
+
+          <!-- Multi-Horizon Selector Buttons -->
+          <div class="horizon-btn-group" style="display: flex; gap: 6px;">
+            <button class="btn-minimal btn-ghost-minimal horizon-btn" data-days="7" onclick="App.changeForecastHorizon(7)">7 Days</button>
+            <button class="btn-minimal btn-ghost-minimal horizon-btn" data-days="14" onclick="App.changeForecastHorizon(14)">14 Days</button>
+            <button class="btn-minimal btn-ghost-minimal horizon-btn active" data-days="30" onclick="App.changeForecastHorizon(30)">30 Days</button>
+            <button class="btn-minimal btn-ghost-minimal horizon-btn" data-days="90" onclick="App.changeForecastHorizon(90)">90 Days</button>
+            <button class="btn-minimal btn-ghost-minimal horizon-btn" data-days="180" onclick="App.changeForecastHorizon(180)">180 Days</button>
+            <button class="btn-minimal btn-ghost-minimal horizon-btn" data-days="365" onclick="App.changeForecastHorizon(365)">365 Days</button>
+          </div>
+        </div>
+
+        <!-- Dynamic Forecast Summary Banner -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; padding: 14px; background: rgba(255,255,255,0.02); border-radius: var(--radius-card); border: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Total Forecasted Demand</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--text-heading);" id="fc-total-units">--</div>
+          </div>
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Avg Daily Demand</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--text-heading);" id="fc-avg-daily">--</div>
+          </div>
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Trend Classification</div>
+            <div id="fc-trend-badge" style="margin-top: 4px;"><span class="badge-minimal primary">--</span></div>
+          </div>
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Model Confidence Score</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--success);" id="fc-confidence">--</div>
           </div>
         </div>
         
@@ -403,9 +447,8 @@
                 <th>Timestamp</th>
               </tr>
             </thead>
-            <tbody>
-              <tr><td>#1001</td><td><span class="badge-minimal primary">LOGIN</span></td><td>/api/auth/login</td><td>1</td><td>2026-07-20 23:25:00</td></tr>
-              <tr><td>#1002</td><td><span class="badge-minimal primary">PREDICT_PRICE</span></td><td>/api/pricing/predict-price</td><td>1</td><td>2026-07-20 23:26:15</td></tr>
+            <tbody id="audit-table-body">
+              <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading system audit log...</td></tr>
             </tbody>
           </table>
         </div>
@@ -487,6 +530,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Floating Toast Notifications Container -->
+  <div id="toast-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;"></div>
 
   <script src="/static/js/api.js"></script>
   <script src="/static/js/charts.js"></script>
