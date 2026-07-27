@@ -3,28 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-class AuditLog(db.Model):
-    __tablename__ = 'audit_logs'
-
-    id = db.Column(db.Integer, primary_key=True)
-    action = db.Column(db.String(100), nullable=False)
-    endpoint = db.Column(db.String(255), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(50), default='SUCCESS')
-
-    user = db.relationship('User', backref='audit_logs')
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'action': self.action,
-            'endpoint': self.endpoint,
-            'user_id': self.user_id or 1,
-            'timestamp': self.timestamp.strftime('%Y-%m-%d %H:%M:%S') if self.timestamp else '',
-            'status': self.status
-        }
-
 class User(db.Model):
     __tablename__ = 'users'
     
@@ -248,12 +226,15 @@ class AuditLog(db.Model):
     ip_address = db.Column(db.String(45), nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+    user = db.relationship('User', backref='audit_logs')
+
     def to_dict(self):
         return {
             'id': self.id,
-            'user_id': self.user_id,
+            'user_id': self.user_id or 1,
+            'user_email': self.user.email if self.user else 'System',
             'action': self.action,
-            'endpoint': self.endpoint,
+            'endpoint': self.endpoint or '/',
             'ip_address': self.ip_address,
-            'timestamp': self.timestamp.isoformat() if self.timestamp else None
+            'timestamp': self.timestamp.strftime('%Y-%m-%d %H:%M:%S') if self.timestamp else ''
         }

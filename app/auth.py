@@ -1,9 +1,9 @@
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask import request, jsonify, current_app
 from flask_bcrypt import Bcrypt
-from app.models import User
+from app.models import db, User
 
 bcrypt = Bcrypt()
 
@@ -15,21 +15,22 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 def generate_tokens(user_id: int, role: str):
     secret = current_app.config['JWT_SECRET_KEY']
+    now = datetime.now(timezone.utc)
     
     access_payload = {
         'sub': str(user_id),
         'role': role,
         'type': 'access',
-        'exp': datetime.utcnow() + current_app.config['JWT_ACCESS_TOKEN_EXPIRES'],
-        'iat': datetime.utcnow()
+        'exp': now + current_app.config['JWT_ACCESS_TOKEN_EXPIRES'],
+        'iat': now
     }
     
     refresh_payload = {
         'sub': str(user_id),
         'role': role,
         'type': 'refresh',
-        'exp': datetime.utcnow() + current_app.config['JWT_REFRESH_TOKEN_EXPIRES'],
-        'iat': datetime.utcnow()
+        'exp': now + current_app.config['JWT_REFRESH_TOKEN_EXPIRES'],
+        'iat': now
     }
     
     access_token = jwt.encode(access_payload, secret, algorithm='HS256')
@@ -68,7 +69,7 @@ def jwt_required(f):
             return jsonify({'error': 'Invalid token type'}), 401
         
         sub_id = int(payload['sub'])
-        user = User.query.get(sub_id)
+        user = db.session.get(User, sub_id)
         if not user:
             user = User(id=sub_id, name=f"User #{sub_id}", email=f"user_{sub_id}@pricepilot.ai", role=payload.get('role', 'Business Analyst'), is_active=True)
             
@@ -100,7 +101,7 @@ def role_required(allowed_roles):
                 }), 403
             
             sub_id = int(payload['sub'])
-            user = User.query.get(sub_id)
+            user = db.session.get(User, sub_id)
             if not user:
                 user = User(id=sub_id, name=f"User #{sub_id}", email=f"user_{sub_id}@pricepilot.ai", role=user_role, is_active=True)
                 
