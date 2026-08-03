@@ -160,6 +160,16 @@ The database schema is fully normalized in **Third Normal Form (3NF)** with stri
 | `POST` | `/api/revenue/simulate` | Interactive multi-variable What-If scenario simulation | Public |
 | `GET` | `/api/revenue/product/<id>` | Single product break-even analysis & optimization profile | Public |
 
+### 🏛️ Executive Business Intelligence & Decision Platform API (`/api/bi`, `/api/reports`, `/api/alerts`, `/api/monitoring`)
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/api/bi/overview` | C-Suite executive KPIs, positioning matrix, risk summary | Public |
+| `GET` | `/api/bi/drilldown` | Multi-dimensional category & product level drill-down | Public |
+| `GET` | `/api/reports/export` | Export reports (`PDF`, `Excel`, `CSV`) for 8 executive report types | Public |
+| `GET` | `/api/alerts` | Query active business alerts (Margin Risk, Price Cuts, Opportunities) | Public |
+| `POST` | `/api/alerts/acknowledge` | Acknowledge active business notification alert | Public |
+| `GET` | `/api/monitoring/health` | Live system health, database pool, ML model state, latency, memory | Public |
+
 ---
 
 ## ⚡ Quick Start & Running Instructions
