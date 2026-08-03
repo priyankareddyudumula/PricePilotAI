@@ -53,11 +53,32 @@ class Product(db.Model):
     product_height_cm = db.Column(db.Float, nullable=True)
     product_width_cm = db.Column(db.Float, nullable=True)
     current_price = db.Column(db.Float, nullable=False, default=0.0)
+    cost_price = db.Column(db.Float, nullable=True)
+    margin = db.Column(db.Float, nullable=True)
+    target_margin = db.Column(db.Float, nullable=True, default=0.35)
+    minimum_price = db.Column(db.Float, nullable=True)
+    maximum_price = db.Column(db.Float, nullable=True)
+    brand = db.Column(db.String(100), nullable=True)
+    sku = db.Column(db.String(64), nullable=True)
+    supplier = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     category = db.relationship('Category', backref='products')
 
+    def get_cost(self):
+        return self.cost_price if self.cost_price is not None else round(self.current_price * 0.60, 2)
+
+    def get_minimum_price(self):
+        return self.minimum_price if self.minimum_price is not None else round(self.current_price * 0.70, 2)
+
+    def get_maximum_price(self):
+        return self.maximum_price if self.maximum_price is not None else round(self.current_price * 1.50, 2)
+
+    def get_target_margin(self):
+        return self.target_margin if self.target_margin is not None else 0.35
+
     def to_dict(self):
+        cost = self.get_cost()
         return {
             'id': self.id,
             'product_id': self.product_id,
@@ -68,6 +89,13 @@ class Product(db.Model):
             'product_height_cm': self.product_height_cm,
             'product_width_cm': self.product_width_cm,
             'current_price': self.current_price,
+            'cost_price': cost,
+            'minimum_price': self.get_minimum_price(),
+            'maximum_price': self.get_maximum_price(),
+            'target_margin': self.get_target_margin(),
+            'brand': self.brand,
+            'sku': self.sku or self.product_id,
+            'supplier': self.supplier,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
@@ -375,6 +403,11 @@ class PriceRecommendation(db.Model):
     market_position = db.Column(db.String(50), nullable=True)
     expected_margin = db.Column(db.Float, nullable=True)
     expected_revenue = db.Column(db.Float, nullable=True)
+    expected_profit = db.Column(db.Float, nullable=True)
+    expected_roi = db.Column(db.Float, nullable=True)
+    risk_level = db.Column(db.String(50), nullable=True, default='MEDIUM')
+    strategy_type = db.Column(db.String(50), nullable=True, default='REVENUE_MAXIMIZATION')
+    simulation_id = db.Column(db.String(64), nullable=True)
     explanation = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -394,6 +427,11 @@ class PriceRecommendation(db.Model):
             'market_position': self.market_position,
             'expected_margin': self.expected_margin,
             'expected_revenue': self.expected_revenue,
+            'expected_profit': self.expected_profit,
+            'expected_roi': self.expected_roi,
+            'risk_level': self.risk_level or 'MEDIUM',
+            'strategy_type': self.strategy_type or 'REVENUE_MAXIMIZATION',
+            'simulation_id': self.simulation_id,
             'explanation': self.explanation,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
