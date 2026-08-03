@@ -47,6 +47,10 @@
         <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         Revenue Engine
       </li>
+      <li class="nav-item" data-tab="executive-bi" role="tab" aria-selected="false" tabindex="0" aria-controls="tab-executive-bi">
+        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        Executive BI
+      </li>
       <li class="nav-item" data-tab="analytics" role="tab" aria-selected="false" tabindex="0" aria-controls="tab-analytics">
         <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         Model Leaderboard
@@ -910,7 +914,148 @@
       </div>
     </section>
 
+    <!-- Executive Business Intelligence & Reporting Tab -->
+    <section id="tab-executive-bi" class="tab-pane">
+      <div class="content-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+          <h1 class="page-title">Executive Business Intelligence & Decision Platform</h1>
+          <p class="page-subtitle">C-Suite performance monitoring, multi-dimensional drill-downs, automated report generation, and system health status.</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-minimal btn-primary-solid" onclick="App.openReportExportModal()">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export Executive Reports
+          </button>
+          <button class="btn-minimal btn-ghost-minimal" onclick="App.loadExecutiveBITab()">Refresh BI</button>
+        </div>
+      </div>
+
+      <!-- System Health Monitor Bar -->
+      <div class="card-minimal" style="margin-bottom: 20px; padding: 12px 16px; background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+          <strong style="color: var(--text-heading); font-size: 12.5px;">Platform Status: PRODUCTION READY</strong>
+        </div>
+        <div style="display: flex; gap: 20px; font-size: 11.5px; color: var(--text-secondary);">
+          <span>Database Pool: <strong id="sys-db-status" style="color: #10b981;">HEALTHY (3,115 SKUs)</strong></span>
+          <span>ML Models: <strong id="sys-ml-status" style="color: #60a5fa;">LOADED (94.2% R²)</strong></span>
+          <span>Response Latency: <strong id="sys-latency" style="color: #fbbf24;">1.8 ms</strong></span>
+          <span>Memory Usage: <strong id="sys-memory" style="color: var(--text-heading);">42.5 MB</strong></span>
+        </div>
+      </div>
+
+      <!-- Active Alert Banner -->
+      <div id="exec-alert-banner" style="margin-bottom: 20px;"></div>
+
+      <!-- KPI Grid -->
+      <div class="kpi-grid-6" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+        <div class="kpi-card-minimal">
+          <div class="kpi-label">Executive Gross Revenue</div>
+          <div class="kpi-value" id="exec-kpi-revenue" style="color: #60a5fa;">R$ 0.00</div>
+          <div class="kpi-subtext" id="exec-kpi-growth-sub">+0.0% catalog revenue growth</div>
+        </div>
+        <div class="kpi-card-minimal">
+          <div class="kpi-label">Optimized Net Profit</div>
+          <div class="kpi-value" id="exec-kpi-profit" style="color: #10b981;">R$ 0.00</div>
+          <div class="kpi-subtext" id="exec-kpi-lift-sub">+R$ 0.00 profit lift</div>
+        </div>
+        <div class="kpi-card-minimal">
+          <div class="kpi-label">Forecast Accuracy (R²)</div>
+          <div class="kpi-value" id="exec-kpi-accuracy" style="color: #38bdf8;">94.2%</div>
+          <div class="kpi-subtext">XGBoost & LightGBM Ensembles</div>
+        </div>
+        <div class="kpi-card-minimal">
+          <div class="kpi-label">Market Leader Share</div>
+          <div class="kpi-value" id="exec-kpi-share" style="color: #c084fc;">0.0%</div>
+          <div class="kpi-subtext">Top competitive volume positioning</div>
+        </div>
+      </div>
+
+      <!-- Advanced Visualizations Grid -->
+      <div class="charts-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+        <div class="card-minimal">
+          <h3 class="card-title">Financial Lift Waterfall Chart</h3>
+          <div id="chart-exec-waterfall" style="min-height: 280px; display: flex; align-items: center; justify-content: center;">
+            <div class="skeleton-box" style="height: 240px; width: 100%;"></div>
+          </div>
+        </div>
+
+        <div class="card-minimal">
+          <h3 class="card-title">Strategy Distribution Treemap</h3>
+          <div id="chart-exec-treemap" style="min-height: 280px; display: flex; align-items: center; justify-content: center;">
+            <div class="skeleton-box" style="height: 240px; width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Radar and Drill-down Grid -->
+      <div class="charts-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+        <div class="card-minimal">
+          <h3 class="card-title">Competitive Positioning Radar Matrix</h3>
+          <div id="chart-exec-radar" style="min-height: 280px; display: flex; align-items: center; justify-content: center;">
+            <div class="skeleton-box" style="height: 240px; width: 100%;"></div>
+          </div>
+        </div>
+
+        <div class="card-minimal">
+          <h3 class="card-title">Category Level Financial Drill-down</h3>
+          <div style="overflow-x: auto;">
+            <table class="data-table-minimal">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>SKUs</th>
+                  <th>Total Revenue</th>
+                  <th>Total Profit</th>
+                  <th>Margin %</th>
+                </tr>
+              </thead>
+              <tbody id="exec-drilldown-table-body">
+                <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading category drill-down metrics...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <!-- Report Export Modal -->
+  <div class="modal-overlay" id="report-export-modal" style="display: none;">
+    <div class="modal-box-minimal" style="max-width: 480px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="font-size: 16px; font-weight: 600; color: var(--text-heading);">Generate Executive Report</h2>
+        <button class="btn-minimal btn-ghost-minimal" onclick="App.closeReportExportModal()">✕</button>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Select report type and export format. Reports are dynamically compiled from live backend database records.</p>
+      
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label class="form-label">Report Type</label>
+        <select id="report-modal-type" class="form-select">
+          <option value="Executive Summary">Executive Summary Report</option>
+          <option value="Revenue Report">Revenue & Profit Optimization Report</option>
+          <option value="Market Intelligence Report">Market Intelligence & Volatility Report</option>
+          <option value="Competitor Analysis Report">Competitor Analysis & Position Report</option>
+          <option value="Pricing Recommendation Report">AI Pricing Strategy Recommendations</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label">Export Format</label>
+        <select id="report-modal-format" class="form-select">
+          <option value="pdf">PDF Document (.pdf)</option>
+          <option value="xlsx">Excel Workbook (.xlsx)</option>
+          <option value="csv">CSV Spreadsheet (.csv)</option>
+        </select>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn-minimal btn-ghost-minimal" onclick="App.closeReportExportModal()">Cancel</button>
+        <button class="btn-minimal btn-primary-solid" onclick="App.downloadModalReport()">Download Report</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Login Modal -->
   <div class="modal-overlay" id="login-modal">

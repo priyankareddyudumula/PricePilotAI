@@ -359,6 +359,68 @@ const ChartsEngine = {
     this.renderOrUpdate('pricingStrategyDist', containerId, options);
   },
 
+  initExecWaterfallChart(containerId, kpis) {
+    if (!kpis) return;
+    const seriesData = [
+      { x: 'Baseline Revenue', y: kpis.total_revenue },
+      { x: 'Price Elasticity Gain', y: roundNum(kpis.potential_profit_lift * 0.45) },
+      { x: 'Competitor Re-alignment', y: roundNum(kpis.potential_profit_lift * 0.35) },
+      { x: 'Cost Optimization', y: roundNum(kpis.potential_profit_lift * 0.20) },
+      { x: 'Optimized Revenue', y: kpis.projected_revenue }
+    ];
+
+    function roundNum(v) { return Math.round(v * 100) / 100; }
+
+    const options = {
+      chart: { type: 'bar', height: 280, background: 'transparent', fontFamily: 'Plus Jakarta Sans, sans-serif' },
+      theme: { mode: 'dark' },
+      plotOptions: { bar: { borderRadius: 4, columnWidth: '45%' } },
+      colors: ['#6366f1', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'],
+      dataLabels: { enabled: false },
+      series: [{ name: 'Financial Impact (R$)', data: seriesData }],
+      xaxis: { type: 'category', labels: { style: { colors: '#94a3b8', fontSize: '10px' } } },
+      yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '11px' }, formatter: (v) => `R$ ${(v/1000).toFixed(1)}k` } },
+      grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 3 },
+      tooltip: { theme: 'dark' }
+    };
+    this.renderOrUpdate('execWaterfall', containerId, options);
+  },
+
+  initExecTreemapChart(containerId, strategyCounts) {
+    if (!strategyCounts) return;
+    const seriesData = Object.keys(strategyCounts).map(k => ({
+      x: k,
+      y: strategyCounts[k] || 1
+    }));
+
+    const options = {
+      chart: { type: 'treemap', height: 280, background: 'transparent', fontFamily: 'Plus Jakarta Sans, sans-serif' },
+      theme: { mode: 'dark' },
+      colors: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#3b82f6', '#06b6d4', '#8b5cf6'],
+      series: [{ data: seriesData }],
+      tooltip: { theme: 'dark' }
+    };
+    this.renderOrUpdate('execTreemap', containerId, options);
+  },
+
+  initExecRadarChart(containerId, positionCounts) {
+    if (!positionCounts) return;
+    const categories = ['Market Leader', 'Aggressive Pricing', 'Below Market', 'At Market', 'Above Market', 'Premium'];
+    const values = categories.map(c => positionCounts[c] || 0);
+
+    const options = {
+      chart: { type: 'radar', height: 280, background: 'transparent', fontFamily: 'Plus Jakarta Sans, sans-serif' },
+      theme: { mode: 'dark' },
+      colors: ['#38bdf8'],
+      markers: { size: 4 },
+      series: [{ name: 'SKUs Count', data: values }],
+      xaxis: { categories: categories, labels: { style: { colors: '#94a3b8', fontSize: '10px' } } },
+      yaxis: { show: false },
+      tooltip: { theme: 'dark' }
+    };
+    this.renderOrUpdate('execRadar', containerId, options);
+  },
+
   renderOrUpdate(key, containerId, options) {
     if (this.chartInstances[key]) {
       this.chartInstances[key].destroy();

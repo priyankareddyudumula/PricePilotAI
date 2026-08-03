@@ -109,6 +109,7 @@ const App = {
     if (tabId === 'competitors') this.loadCompetitorsTab();
     if (tabId === 'market-intelligence') this.loadMarketIntelligenceTab();
     if (tabId === 'revenue-engine') this.loadRevenueEngineTab();
+    if (tabId === 'executive-bi') this.loadExecutiveBITab();
   },
 
   renderTableSkeleton(tbodyId, rows = 5, cols = 5) {
@@ -1076,6 +1077,148 @@ const App = {
 
   onRevenueSearchChange() {
     this.loadRevenueRecommendationsData();
+  },
+
+  // Executive BI & Decision Platform Controller Methods
+  async loadExecutiveBITab() {
+    this.renderTableSkeleton('exec-drilldown-table-body', 5, 5);
+    await Promise.all([
+      this.loadExecutiveBIOverview(),
+      this.loadExecutiveDrilldown(),
+      this.loadExecutiveAlerts(),
+      this.loadSystemHealth()
+    ]);
+  },
+
+  async loadExecutiveBIOverview() {
+    try {
+      const res = await API.getExecutiveOverview();
+      const kpis = res.executive_kpis || {};
+
+      const revEl = document.getElementById('exec-kpi-revenue');
+      const profEl = document.getElementById('exec-kpi-profit');
+      const shareEl = document.getElementById('exec-kpi-share');
+      const growthSub = document.getElementById('exec-kpi-growth-sub');
+      const liftSub = document.getElementById('exec-kpi-lift-sub');
+
+      if (revEl) revEl.textContent = `R$ ${(kpis.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      if (profEl) profEl.textContent = `R$ ${(kpis.projected_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      if (shareEl) shareEl.textContent = `${(kpis.market_leader_share_pct || 0).toFixed(1)}%`;
+      if (growthSub) growthSub.textContent = `+${(kpis.revenue_growth_pct || 0).toFixed(1)}% revenue growth`;
+      if (liftSub) liftSub.textContent = `+R$ ${(kpis.potential_profit_lift || 0).toFixed(2)} net profit lift`;
+
+      if (typeof ChartsEngine !== 'undefined') {
+        if (ChartsEngine.initExecWaterfallChart) ChartsEngine.initExecWaterfallChart('chart-exec-waterfall', kpis);
+        if (ChartsEngine.initExecTreemapChart) ChartsEngine.initExecTreemapChart('chart-exec-treemap', res.strategy_distribution);
+        if (ChartsEngine.initExecRadarChart) ChartsEngine.initExecRadarChart('chart-exec-radar', res.positioning_breakdown);
+      }
+    } catch (e) {
+      console.error('Failed to load executive BI overview:', e);
+    }
+  },
+
+  async loadExecutiveDrilldown() {
+    try {
+      const res = await API.getExecutiveDrilldown({ dimension: 'category' });
+      const items = res.items || [];
+      const tbody = document.getElementById('exec-drilldown-table-body');
+      if (!tbody) return;
+
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No drill-down data available.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = items.map(cat => `
+        <tr>
+          <td><strong style="color: var(--text-heading);">${cat.category_name}</strong></td>
+          <td><span style="font-size: 11.5px; color: var(--text-secondary);">${cat.product_count} SKUs</span></td>
+          <td><strong>R$ ${cat.total_revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></td>
+          <td><strong style="color: #10b981;">R$ ${cat.total_profit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></td>
+          <td><span style="color: #fbbf24; font-weight: 600;">${cat.avg_margin_pct.toFixed(1)}%</span></td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      console.error('Failed to load executive drilldown:', e);
+    }
+  },
+
+  async loadExecutiveAlerts() {
+    try {
+      const res = await API.getActiveAlerts();
+      const alerts = res.alerts || [];
+      const banner = document.getElementById('exec-alert-banner');
+      if (!banner) return;
+
+      if (alerts.length === 0) {
+        banner.innerHTML = '';
+        return;
+      }
+
+      const critical = alerts.filter(a => a.severity === 'CRITICAL');
+      const firstAlert = critical[0] || alerts[0];
+      const alertColor = firstAlert.severity === 'CRITICAL' ? '#f87171' : '#f59e0b';
+      const bgColor = firstAlert.severity === 'CRITICAL' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)';
+
+      banner.innerHTML = `
+        <div style="background: ${bgColor}; border: 1px solid ${alertColor}; padding: 14px 18px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong style="color: ${alertColor}; font-size: 13px;">🚨 ${firstAlert.title} (${alerts.length} Active Business Alerts)</strong>
+            <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 4px;">${firstAlert.message} <em>Recommendation: ${firstAlert.recommendation}</em></p>
+          </div>
+          <button class="btn-minimal btn-ghost-minimal" style="color: ${alertColor}; font-size: 11.5px;" onclick="App.acknowledgeAlert('${firstAlert.id}')">Acknowledge</button>
+        </div>
+      `;
+    } catch (e) {
+      console.error('Failed to load executive alerts:', e);
+    }
+  },
+
+  async acknowledgeAlert(alertId) {
+    try {
+      await API.acknowledgeAlert(alertId);
+      this.showToast(`Alert acknowledged successfully.`, 'info');
+      this.loadExecutiveAlerts();
+    } catch (e) {
+      console.error('Failed to acknowledge alert:', e);
+    }
+  },
+
+  async loadSystemHealth() {
+    try {
+      const res = await API.getSystemHealth();
+      const dbEl = document.getElementById('sys-db-status');
+      const mlEl = document.getElementById('sys-ml-status');
+      const latEl = document.getElementById('sys-latency');
+      const memEl = document.getElementById('sys-memory');
+
+      if (dbEl) dbEl.textContent = `HEALTHY (${res.database.products_indexed} SKUs)`;
+      if (mlEl) mlEl.textContent = `LOADED (${(res.ml_engine.forecast_accuracy_r2 * 100).toFixed(1)}% R²)`;
+      if (latEl) latEl.textContent = `${res.response_latency_ms} ms`;
+      if (memEl) memEl.textContent = `${res.memory_usage_mb} MB`;
+    } catch (e) {
+      console.error('Failed to load system health:', e);
+    }
+  },
+
+  openReportExportModal() {
+    const modal = document.getElementById('report-export-modal');
+    if (modal) modal.style.display = 'flex';
+  },
+
+  closeReportExportModal() {
+    const modal = document.getElementById('report-export-modal');
+    if (modal) modal.style.display = 'none';
+  },
+
+  downloadModalReport() {
+    const reportType = document.getElementById('report-modal-type')?.value || 'Executive Summary';
+    const format = document.getElementById('report-modal-format')?.value || 'pdf';
+
+    const url = API.getExecutiveReportDownloadUrl(reportType, format);
+    window.open(url, '_blank');
+    this.closeReportExportModal();
+    this.showToast(`Generating & Downloading ${reportType} (${format.toUpperCase()})...`, 'info');
   },
 
   showNotification(msg, type = 'info') {

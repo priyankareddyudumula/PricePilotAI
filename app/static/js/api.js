@@ -313,5 +313,41 @@ const API = {
 
   async getProductRevenueProfile(productId) {
     return await this.request(`/revenue/product/${productId}`);
+  },
+
+  // Executive BI, Reports, Alerts, & System Monitoring APIs
+  async getExecutiveOverview(params = {}) {
+    const q = new URLSearchParams();
+    if (params.category_id) q.append('category_id', params.category_id);
+    if (params.risk && params.risk !== 'all') q.append('risk', params.risk);
+    if (params.strategy && params.strategy !== 'all') q.append('strategy', params.strategy);
+    const str = q.toString();
+    return await this.request(`/bi/overview${str ? '?' + str : ''}`);
+  },
+
+  async getExecutiveDrilldown(params = {}) {
+    const q = new URLSearchParams();
+    if (params.dimension) q.append('dimension', params.dimension);
+    if (params.parent_id) q.append('parent_id', params.parent_id);
+    const str = q.toString();
+    return await this.request(`/bi/drilldown${str ? '?' + str : ''}`);
+  },
+
+  getExecutiveReportDownloadUrl(reportType = 'Executive Summary', format = 'pdf', categoryId = null) {
+    const q = new URLSearchParams({ report_type: reportType, format });
+    if (categoryId) q.append('category_id', categoryId);
+    return `${this.baseUrl}/reports/export?${q.toString()}`;
+  },
+
+  async getActiveAlerts() {
+    return await this.request('/alerts');
+  },
+
+  async acknowledgeAlert(alertId) {
+    return await this.request('/alerts/acknowledge', 'POST', { alert_id: alertId });
+  },
+
+  async getSystemHealth() {
+    return await this.request('/monitoring/health');
   }
 };
