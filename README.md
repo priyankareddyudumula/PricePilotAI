@@ -140,6 +140,16 @@ The database schema is fully normalized in **Third Normal Form (3NF)** with stri
 | `GET` | `/api/competitors/comparison` | Compute catalog price comparison & position summary | Public |
 | `GET` | `/api/competitors/reports/export` | Export price comparison report (`CSV`, `Excel`, `PDF`) | Public |
 
+### 📈 Market Intelligence & Business Intelligence API (`/api/market`)
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/api/market/overview` | Catalog-wide BI overview, volatility scores, risk counts | Public |
+| `GET` | `/api/market/trends` | 7d/30d rolling averages, moving std dev, trend direction | Public |
+| `GET` | `/api/market/opportunities` | Auto-detected pricing opportunities & recommendations | Public |
+| `GET` | `/api/market/positioning` | Competitive positioning matrix breakdown | Public |
+| `GET` | `/api/market/volatility` | Volatility index rankings & price stability scores | Public |
+| `GET` | `/api/market/product/<id>` | Deep-dive single product market intelligence profile | Public |
+
 ---
 
 ## ⚡ Quick Start & Running Instructions
