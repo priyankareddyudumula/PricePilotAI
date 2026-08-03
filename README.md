@@ -124,6 +124,22 @@ The database schema is fully normalized in **Third Normal Form (3NF)** with stri
 | `PUT` | `/api/products/<id>` | Update product details & price | Admin / Pricing Manager |
 | `DELETE` | `/api/products/<id>` | Delete product from catalog | Admin |
 
+### 🔍 Competitor Monitoring & Price Comparison API (`/api/competitors`)
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `POST` | `/api/competitors` | Create a new competitor profile | Admin / Pricing Manager |
+| `GET` | `/api/competitors` | List all tracked competitors | Public |
+| `GET` | `/api/competitors/<id>` | Retrieve single competitor profile | Public |
+| `PUT` | `/api/competitors/<id>` | Update competitor details | Admin / Pricing Manager |
+| `DELETE` | `/api/competitors/<id>` | Delete competitor & price feeds | Admin |
+| `POST` | `/api/competitors/products` | Create/map competitor product SKU | Admin / Pricing Manager |
+| `GET` | `/api/competitors/products` | List competitor product mappings | Public |
+| `POST` | `/api/competitors/prices` | Ingest single competitor price observation | Admin / Pricing Manager |
+| `POST` | `/api/competitors/import/csv` | Bulk import pricing feeds via CSV file | Admin / Pricing Manager |
+| `GET` | `/api/competitors/prices/history` | Query historical competitor price ledger | Public |
+| `GET` | `/api/competitors/comparison` | Compute catalog price comparison & position summary | Public |
+| `GET` | `/api/competitors/reports/export` | Export price comparison report (`CSV`, `Excel`, `PDF`) | Public |
+
 ---
 
 ## ⚡ Quick Start & Running Instructions
