@@ -362,3 +362,40 @@ class CompetitorPrice(db.Model):
             'recorded_at': self.recorded_at.isoformat() if self.recorded_at else None
         }
 
+class PriceRecommendation(db.Model):
+    __tablename__ = 'price_recommendations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    recommendation_type = db.Column(db.String(50), nullable=False)
+    current_price = db.Column(db.Float, nullable=False)
+    recommended_price = db.Column(db.Float, nullable=False)
+    price_change_pct = db.Column(db.Float, nullable=False, default=0.0)
+    confidence_score = db.Column(db.Float, nullable=False, default=0.85)
+    market_position = db.Column(db.String(50), nullable=True)
+    expected_margin = db.Column(db.Float, nullable=True)
+    expected_revenue = db.Column(db.Float, nullable=True)
+    explanation = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    product = db.relationship('Product', backref=db.backref('recommendations', lazy=True, cascade='all, delete-orphan'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'product_id': self.product_id,
+            'product_sku': self.product.product_id if self.product else None,
+            'category_name': self.product.category.category_name if (self.product and self.product.category) else 'Uncategorized',
+            'recommendation_type': self.recommendation_type,
+            'current_price': self.current_price,
+            'recommended_price': self.recommended_price,
+            'price_change_pct': self.price_change_pct,
+            'confidence_score': self.confidence_score,
+            'market_position': self.market_position,
+            'expected_margin': self.expected_margin,
+            'expected_revenue': self.expected_revenue,
+            'explanation': self.explanation,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+
