@@ -35,6 +35,7 @@ def create_app(config_class=Config):
     from app.api.order_routes import order_bp
     from app.api.analytics_routes import analytics_bp
     from app.api.admin_routes import admin_bp
+    from app.api.competitor_routes import competitor_bp
     from app.api.health_routes import health_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -44,6 +45,7 @@ def create_app(config_class=Config):
     app.register_blueprint(order_bp, url_prefix='/api/orders')
     app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(competitor_bp, url_prefix='/api/competitors')
     app.register_blueprint(health_bp)
 
     # Main SPA Route
