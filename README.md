@@ -150,6 +150,16 @@ The database schema is fully normalized in **Third Normal Form (3NF)** with stri
 | `GET` | `/api/market/volatility` | Volatility index rankings & price stability scores | Public |
 | `GET` | `/api/market/product/<id>` | Deep-dive single product market intelligence profile | Public |
 
+### 💰 Revenue Optimization & Pricing Strategy Engine API (`/api/revenue`)
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `GET` | `/api/revenue/overview` | Catalog-wide financial summary, projected profit lift, ROI | Public |
+| `GET` | `/api/revenue/profitability` | Profitability analytics, contribution margins, best/worst SKUs | Public |
+| `GET` | `/api/revenue/recommendations` | AI pricing strategy recommendations & confidence scores | Public |
+| `GET` | `/api/revenue/simulation` | Macro catalog scenario baseline & sensitivity curve | Public |
+| `POST` | `/api/revenue/simulate` | Interactive multi-variable What-If scenario simulation | Public |
+| `GET` | `/api/revenue/product/<id>` | Single product break-even analysis & optimization profile | Public |
+
 ---
 
 ## ⚡ Quick Start & Running Instructions
