@@ -209,6 +209,31 @@ const ChartsEngine = {
     this.renderOrUpdate('priceElasticity', containerId, options);
   },
 
+  initCompetitorPositionChart(containerId, positionCounts) {
+    if (!positionCounts) return;
+    const labels = ['Lowest', 'Competitive', 'Premium', 'Overpriced', 'Unmapped'];
+    const series = [
+      positionCounts['Lowest'] || 0,
+      positionCounts['Competitive'] || 0,
+      positionCounts['Premium'] || 0,
+      positionCounts['Overpriced'] || 0,
+      positionCounts['Unmapped'] || 0
+    ];
+
+    const options = {
+      chart: { type: 'donut', height: 260, background: 'transparent', fontFamily: 'Plus Jakarta Sans, sans-serif' },
+      theme: { mode: 'dark' },
+      labels: labels,
+      series: series,
+      colors: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#64748b'],
+      stroke: { width: 0 },
+      dataLabels: { enabled: false },
+      legend: { position: 'bottom', labels: { colors: '#94a3b8', fontSize: '11px' } },
+      tooltip: { theme: 'dark' }
+    };
+    this.renderOrUpdate('competitorPosition', containerId, options);
+  },
+
   renderOrUpdate(key, containerId, options) {
     if (this.chartInstances[key]) {
       this.chartInstances[key].destroy();

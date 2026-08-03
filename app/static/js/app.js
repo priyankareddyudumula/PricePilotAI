@@ -106,6 +106,7 @@ const App = {
     if (tabId === 'forecasting') this.loadDemandForecast(this.activeForecastHorizon);
     if (tabId === 'pricing') this.handlePricingFormSubmit();
     if (tabId === 'admin') this.loadAuditLogs();
+    if (tabId === 'competitors') this.loadCompetitorsTab();
   },
 
   renderTableSkeleton(tbodyId, rows = 5, cols = 5) {
@@ -496,6 +497,282 @@ const App = {
       toast.style.transform = 'translateY(10px)';
       setTimeout(() => toast.remove(), 300);
     }, 3500);
+  },
+
+  // Competitor Monitoring Controller State
+  compCurrentPage: 1,
+  compLimit: 10,
+  compTotalCount: 0,
+  compSortColumn: 'price_difference_pct',
+  compSortAsc: false,
+  selectedCSVFile: null,
+
+  async loadCompetitorsTab() {
+    this.renderTableSkeleton('competitors-table-body', 3, 5);
+    this.renderTableSkeleton('comparison-table-body', 5, 9);
+    await Promise.all([
+      this.loadCompetitorsList(),
+      this.loadCatalogComparison()
+    ]);
+  },
+
+  async loadCompetitorsList() {
+    try {
+      const res = await API.getCompetitors();
+      const tbody = document.getElementById('competitors-table-body');
+      const countEl = document.getElementById('competitor-list-count');
+      const kpiCount = document.getElementById('comp-kpi-count');
+
+      if (kpiCount) kpiCount.textContent = res.count || 0;
+      if (countEl) countEl.textContent = `${res.count || 0} competitors tracked`;
+
+      if (!tbody) return;
+      if (!res.competitors || res.competitors.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No competitors registered yet. Click "+ Add Competitor" to start.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = res.competitors.map(c => `
+        <tr>
+          <td><strong style="color: var(--text-heading);">${c.name}</strong></td>
+          <td>${c.country}</td>
+          <td><span class="badge-minimal ${c.trust_score >= 0.8 ? 'success' : 'warning'}">${(c.trust_score * 100).toFixed(0)}%</span></td>
+          <td>${c.website_url ? `<a href="${c.website_url}" target="_blank" style="color: var(--primary); text-decoration: none;">${c.website_url.replace(/^https?:\/\//, '')}</a>` : '—'}</td>
+          <td>
+            <button class="btn-minimal btn-ghost-minimal" style="color: #fca5a5; padding: 2px 6px;" onclick="App.handleDeleteCompetitor(${c.id})">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      console.error('Failed to load competitors:', e);
+    }
+  },
+
+  async loadCatalogComparison() {
+    try {
+      const position = document.getElementById('comp-filter-position')?.value || 'all';
+      const search = document.getElementById('comp-search-input')?.value || '';
+      const offset = (this.compCurrentPage - 1) * this.compLimit;
+
+      const res = await API.getCompetitorComparison({
+        position,
+        search,
+        limit: this.compLimit,
+        offset
+      });
+
+      this.compTotalCount = res.total_count || 0;
+      this.updateCompetitorKPIs(res.summary);
+
+      if (typeof ChartsEngine !== 'undefined' && ChartsEngine.initCompetitorPositionChart) {
+        ChartsEngine.initCompetitorPositionChart('chart-competitor-position', res.summary.position_counts);
+      }
+
+      const tbody = document.getElementById('comparison-table-body');
+      const infoEl = document.getElementById('comp-pagination-info');
+
+      if (infoEl) {
+        const start = this.compTotalCount === 0 ? 0 : offset + 1;
+        const end = Math.min(offset + this.compLimit, this.compTotalCount);
+        infoEl.textContent = `Showing ${start}-${end} of ${this.compTotalCount} products`;
+      }
+
+      if (!tbody) return;
+      let comparisons = res.comparisons || [];
+
+      if (this.compSortColumn) {
+        comparisons.sort((a, b) => {
+          let va = a[this.compSortColumn] ?? 0;
+          let vb = b[this.compSortColumn] ?? 0;
+          if (typeof va === 'string') va = va.toLowerCase();
+          if (typeof vb === 'string') vb = vb.toLowerCase();
+          return this.compSortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+        });
+      }
+
+      if (comparisons.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--text-muted);">No product price comparisons found for the selected filters.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = comparisons.map(item => {
+        const posClass = item.price_position ? `badge-${item.price_position.toLowerCase()}` : 'badge-unmapped';
+        const gapColor = item.price_difference > 0 ? '#f87171' : (item.price_difference < 0 ? '#10b981' : 'var(--text-muted)');
+        const gapText = item.average_competitor_price !== null ? 
+          `<span style="color: ${gapColor}; font-weight: 600;">${item.price_difference > 0 ? '+' : ''}R$ ${item.price_difference.toFixed(2)} (${item.price_difference_pct > 0 ? '+' : ''}${item.price_difference_pct.toFixed(1)}%)</span>` : 
+          '—';
+
+        return `
+          <tr>
+            <td><strong style="color: var(--text-heading);">${item.product_id}</strong></td>
+            <td><span style="font-size: 11px; color: var(--text-secondary);">${item.category_name}</span></td>
+            <td><strong>R$ ${item.our_price.toFixed(2)}</strong></td>
+            <td>${item.lowest_competitor_price !== null ? `R$ ${item.lowest_competitor_price.toFixed(2)}` : '—'}</td>
+            <td>${item.average_competitor_price !== null ? `R$ ${item.average_competitor_price.toFixed(2)}` : '—'}</td>
+            <td>${item.highest_competitor_price !== null ? `R$ ${item.highest_competitor_price.toFixed(2)}` : '—'}</td>
+            <td>${gapText}</td>
+            <td><span class="${posClass}">${item.price_position}</span></td>
+            <td><span style="font-size: 11.5px; color: var(--text-secondary);">${item.price_position === 'Overpriced' ? '⚠️ ' : ''}${item.price_position === 'Lowest' ? '🚀 ' : ''}${item.price_position} — ${item.competitor_count} sources</span></td>
+          </tr>
+        `;
+      }).join('');
+
+    } catch (e) {
+      console.error('Failed to load comparison data:', e);
+    }
+  },
+
+  updateCompetitorKPIs(summary) {
+    if (!summary) return;
+    const gapEl = document.getElementById('comp-kpi-gap');
+    const compPctEl = document.getElementById('comp-kpi-competitive-pct');
+    const overpricedEl = document.getElementById('comp-kpi-overpriced-count');
+
+    if (gapEl) gapEl.textContent = `${summary.avg_catalog_price_gap > 0 ? '+' : ''}R$ ${summary.avg_catalog_price_gap.toFixed(2)}`;
+    if (compPctEl) {
+      const compCount = (summary.position_counts.Competitive || 0) + (summary.position_counts.Lowest || 0);
+      const total = summary.total_products || 1;
+      compPctEl.textContent = `${((compCount / total) * 100).toFixed(1)}%`;
+    }
+    if (overpricedEl) overpricedEl.textContent = summary.position_counts.Overpriced || 0;
+  },
+
+  async handleCreateCompetitor(e) {
+    e.preventDefault();
+    const name = document.getElementById('comp-name-input').value;
+    const website_url = document.getElementById('comp-url-input').value;
+    const country = document.getElementById('comp-country-input').value;
+    const trust_score = document.getElementById('comp-trust-input').value;
+
+    try {
+      await API.createCompetitor({ name, website_url, country, trust_score });
+      this.showToast(`Competitor "${name}" created successfully`, 'success');
+      this.closeModal('add-competitor-modal');
+      document.getElementById('add-competitor-form').reset();
+      this.loadCompetitorsTab();
+    } catch (err) {
+      this.showToast(err.message || 'Failed to create competitor', 'error');
+    }
+  },
+
+  async handleDeleteCompetitor(id) {
+    if (!confirm('Are you sure you want to delete this competitor and associated price feeds?')) return;
+    try {
+      await API.deleteCompetitor(id);
+      this.showToast('Competitor deleted successfully', 'success');
+      this.loadCompetitorsTab();
+    } catch (err) {
+      this.showToast(err.message || 'Failed to delete competitor', 'error');
+    }
+  },
+
+  async handleIngestPrice(e) {
+    e.preventDefault();
+    const comp_name = document.getElementById('ingest-comp-name').value;
+    const comp_sku = document.getElementById('ingest-comp-sku').value;
+    const internal_sku = document.getElementById('ingest-internal-sku').value;
+    const title = document.getElementById('ingest-title').value;
+    const price = document.getElementById('ingest-price').value;
+    const currency = document.getElementById('ingest-currency').value;
+    const availability = document.getElementById('ingest-availability').value;
+
+    try {
+      await API.ingestCompetitorPrice({
+        competitor_name: comp_name,
+        competitor_sku: comp_sku,
+        internal_product_sku: internal_sku,
+        title,
+        price: parseFloat(price),
+        currency,
+        availability,
+        source: 'MANUAL'
+      });
+      this.showToast('Price record ingested successfully', 'success');
+      this.closeModal('ingest-price-modal');
+      document.getElementById('ingest-price-form').reset();
+      this.loadCompetitorsTab();
+    } catch (err) {
+      this.showToast(err.message || 'Failed to ingest price record', 'error');
+    }
+  },
+
+  onCSVFileSelected(e) {
+    const file = e.target.files[0];
+    const label = document.getElementById('csv-filename-label');
+    if (file) {
+      this.selectedCSVFile = file;
+      if (label) label.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    }
+  },
+
+  async handleCSVUpload(e) {
+    e.preventDefault();
+    if (!this.selectedCSVFile) {
+      this.showToast('Please select a CSV file first', 'warning');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', this.selectedCSVFile);
+
+    try {
+      const res = await API.importCompetitorCSV(formData);
+      this.showToast(res.message || 'CSV Ingestion completed', 'success');
+      this.closeModal('import-csv-modal');
+      this.selectedCSVFile = null;
+      document.getElementById('import-csv-form').reset();
+      const label = document.getElementById('csv-filename-label');
+      if (label) label.textContent = 'No file selected';
+      this.loadCompetitorsTab();
+    } catch (err) {
+      this.showToast(err.message || 'CSV upload failed', 'error');
+    }
+  },
+
+  onCompetitorSearchChange() {
+    this.compCurrentPage = 1;
+    this.loadCatalogComparison();
+  },
+
+  sortCompetitorTable(column) {
+    if (this.compSortColumn === column) {
+      this.compSortAsc = !this.compSortAsc;
+    } else {
+      this.compSortColumn = column;
+      this.compSortAsc = true;
+    }
+    this.loadCatalogComparison();
+  },
+
+  compPrevPage() {
+    if (this.compCurrentPage > 1) {
+      this.compCurrentPage--;
+      this.loadCatalogComparison();
+    }
+  },
+
+  compNextPage() {
+    if (this.compCurrentPage * this.compLimit < this.compTotalCount) {
+      this.compCurrentPage++;
+      this.loadCatalogComparison();
+    }
+  },
+
+  toggleReportExportMenu(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('export-report-dropdown');
+    if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  },
+
+  downloadReport(format) {
+    const position = document.getElementById('comp-filter-position')?.value || 'all';
+    const search = document.getElementById('comp-search-input')?.value || '';
+    const url = API.exportCompetitorReportUrl(format, { position, search });
+
+    window.open(url, '_blank');
+    const menu = document.getElementById('export-report-dropdown');
+    if (menu) menu.style.display = 'none';
+    this.showToast(`Downloading pricing comparison report (${format.toUpperCase()})...`, 'info');
   },
 
   showNotification(msg, type = 'info') {

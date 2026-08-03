@@ -162,5 +162,74 @@ const API = {
 
   async deleteProduct(id) {
     return await this.request(`/products/${id}`, 'DELETE');
+  },
+
+  // Competitor Monitoring & Price Comparison APIs
+  async getCompetitors() {
+    return await this.request('/competitors');
+  },
+
+  async createCompetitor(data) {
+    return await this.request('/competitors', 'POST', data);
+  },
+
+  async updateCompetitor(id, data) {
+    return await this.request(`/competitors/${id}`, 'PUT', data);
+  },
+
+  async deleteCompetitor(id) {
+    return await this.request(`/competitors/${id}`, 'DELETE');
+  },
+
+  async getCompetitorProducts(competitorId = null) {
+    const q = competitorId ? `?competitor_id=${competitorId}` : '';
+    return await this.request(`/competitors/products${q}`);
+  },
+
+  async ingestCompetitorPrice(priceData) {
+    return await this.request('/competitors/prices', 'POST', priceData);
+  },
+
+  async importCompetitorCSV(formData) {
+    const token = this.getToken();
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${this.baseUrl}/competitors/import/csv`, {
+      method: 'POST',
+      headers,
+      body: formData
+    });
+    const resData = await res.json();
+    if (!res.ok) throw new Error(resData.error || 'CSV import failed');
+    return resData;
+  },
+
+  async getCompetitorComparison(params = {}) {
+    const q = new URLSearchParams();
+    if (params.category_id) q.append('category_id', params.category_id);
+    if (params.position && params.position !== 'all') q.append('position', params.position);
+    if (params.search) q.append('search', params.search);
+    if (params.limit) q.append('limit', params.limit);
+    if (params.offset !== undefined) q.append('offset', params.offset);
+    const str = q.toString();
+    return await this.request(`/competitors/comparison${str ? '?' + str : ''}`);
+  },
+
+  async getCompetitorPriceHistory(params = {}) {
+    const q = new URLSearchParams();
+    if (params.competitor_product_id) q.append('competitor_product_id', params.competitor_product_id);
+    if (params.product_sku) q.append('product_sku', params.product_sku);
+    if (params.limit) q.append('limit', params.limit);
+    const str = q.toString();
+    return await this.request(`/competitors/prices/history${str ? '?' + str : ''}`);
+  },
+
+  exportCompetitorReportUrl(format = 'csv', params = {}) {
+    const q = new URLSearchParams({ format });
+    if (params.category_id) q.append('category_id', params.category_id);
+    if (params.position && params.position !== 'all') q.append('position', params.position);
+    if (params.search) q.append('search', params.search);
+    return `${this.baseUrl}/competitors/reports/export?${q.toString()}`;
   }
 };
