@@ -238,3 +238,127 @@ class AuditLog(db.Model):
             'ip_address': self.ip_address,
             'timestamp': self.timestamp.strftime('%Y-%m-%d %H:%M:%S') if self.timestamp else ''
         }
+
+class Competitor(db.Model):
+    __tablename__ = 'competitors'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    website_url = db.Column(db.String(255), nullable=True)
+    country = db.Column(db.String(50), default='BR')
+    logo_url = db.Column(db.String(255), nullable=True)
+    trust_score = db.Column(db.Float, default=1.0)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'website_url': self.website_url,
+            'country': self.country,
+            'logo_url': self.logo_url,
+            'trust_score': self.trust_score,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+class CompetitorCategory(db.Model):
+    __tablename__ = 'competitor_categories'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    competitor_id = db.Column(db.Integer, db.ForeignKey('competitors.id'), nullable=True)
+    category_name = db.Column(db.String(100), nullable=False)
+    category_code = db.Column(db.String(50), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    competitor = db.relationship('Competitor', backref='categories')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'competitor_id': self.competitor_id,
+            'competitor_name': self.competitor.name if self.competitor else None,
+            'category_name': self.category_name,
+            'category_code': self.category_code,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+class CompetitorProduct(db.Model):
+    __tablename__ = 'competitor_products'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    competitor_id = db.Column(db.Integer, db.ForeignKey('competitors.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=True)
+    internal_product_sku = db.Column(db.String(64), nullable=True, index=True)
+    competitor_sku = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    brand = db.Column(db.String(100), nullable=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('competitor_categories.id'), nullable=True)
+    product_url = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    competitor = db.relationship('Competitor', backref='products')
+    internal_product = db.relationship('Product', backref='competitor_products')
+    category = db.relationship('CompetitorCategory', backref='products')
+
+    def to_dict(self):
+        latest_price_rec = CompetitorPrice.query.filter_by(competitor_product_id=self.id).order_by(CompetitorPrice.recorded_at.desc()).first()
+        return {
+            'id': self.id,
+            'competitor_id': self.competitor_id,
+            'competitor_name': self.competitor.name if self.competitor else None,
+            'product_id': self.product_id,
+            'internal_product_sku': self.internal_product_sku or (self.internal_product.product_id if self.internal_product else None),
+            'competitor_sku': self.competitor_sku,
+            'title': self.title,
+            'brand': self.brand,
+            'category_id': self.category_id,
+            'category_name': self.category.category_name if self.category else None,
+            'product_url': self.product_url,
+            'latest_price': latest_price_rec.price if latest_price_rec else None,
+            'currency': latest_price_rec.currency if latest_price_rec else 'BRL',
+            'availability': latest_price_rec.availability if latest_price_rec else 'in_stock',
+            'source': latest_price_rec.source if latest_price_rec else 'MANUAL',
+            'recorded_at': latest_price_rec.recorded_at.isoformat() if latest_price_rec and latest_price_rec.recorded_at else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+class CompetitorPrice(db.Model):
+    __tablename__ = 'competitor_prices'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    competitor_product_id = db.Column(db.Integer, db.ForeignKey('competitor_products.id'), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    currency = db.Column(db.String(10), nullable=False, default='BRL')
+    discount_percent = db.Column(db.Float, nullable=False, default=0.0)
+    original_price = db.Column(db.Float, nullable=True)
+    offer_details = db.Column(db.String(255), nullable=True)
+    source = db.Column(db.String(50), nullable=False, default='CSV')  # CSV, API, MANUAL, SCRAPER
+    availability = db.Column(db.String(50), nullable=False, default='in_stock') # in_stock, out_of_stock, limited_stock
+    recorded_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+    competitor_product = db.relationship('CompetitorProduct', backref=db.backref('prices', lazy=True, cascade='all, delete-orphan'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'competitor_product_id': self.competitor_product_id,
+            'competitor_name': self.competitor_product.competitor.name if (self.competitor_product and self.competitor_product.competitor) else None,
+            'competitor_sku': self.competitor_product.competitor_sku if self.competitor_product else None,
+            'product_title': self.competitor_product.title if self.competitor_product else None,
+            'internal_product_sku': self.competitor_product.internal_product_sku if self.competitor_product else None,
+            'price': self.price,
+            'currency': self.currency,
+            'discount_percent': self.discount_percent,
+            'original_price': self.original_price or self.price,
+            'offer_details': self.offer_details,
+            'source': self.source,
+            'availability': self.availability,
+            'timestamp': self.recorded_at.isoformat() if self.recorded_at else None,
+            'recorded_at': self.recorded_at.isoformat() if self.recorded_at else None
+        }
+
