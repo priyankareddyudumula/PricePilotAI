@@ -38,6 +38,10 @@ def create_app(config_class=Config):
     from app.api.competitor_routes import competitor_bp
     from app.api.market_routes import market_bp
     from app.api.revenue_routes import revenue_bp
+    from app.api.bi_routes import bi_bp
+    from app.api.report_routes import report_bp
+    from app.api.alert_routes import alert_bp
+    from app.api.monitoring_routes import monitoring_bp
     from app.api.health_routes import health_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -50,6 +54,10 @@ def create_app(config_class=Config):
     app.register_blueprint(competitor_bp, url_prefix='/api/competitors')
     app.register_blueprint(market_bp, url_prefix='/api/market')
     app.register_blueprint(revenue_bp, url_prefix='/api/revenue')
+    app.register_blueprint(bi_bp, url_prefix='/api/bi')
+    app.register_blueprint(report_bp, url_prefix='/api/reports')
+    app.register_blueprint(alert_bp, url_prefix='/api/alerts')
+    app.register_blueprint(monitoring_bp, url_prefix='/api/monitoring')
     app.register_blueprint(health_bp)
 
     # Main SPA Route
