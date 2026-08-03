@@ -231,5 +231,45 @@ const API = {
     if (params.position && params.position !== 'all') q.append('position', params.position);
     if (params.search) q.append('search', params.search);
     return `${this.baseUrl}/competitors/reports/export?${q.toString()}`;
+  },
+
+  // Market Intelligence & Business Intelligence APIs
+  async getMarketOverview(params = {}) {
+    const q = new URLSearchParams();
+    if (params.category_id) q.append('category_id', params.category_id);
+    if (params.position && params.position !== 'all') q.append('position', params.position);
+    if (params.risk && params.risk !== 'all') q.append('risk', params.risk);
+    const str = q.toString();
+    return await this.request(`/market/overview${str ? '?' + str : ''}`);
+  },
+
+  async getMarketTrends(params = {}) {
+    const q = new URLSearchParams();
+    if (params.limit) q.append('limit', params.limit);
+    if (params.search) q.append('search', params.search);
+    if (params.days) q.append('days', params.days);
+    const str = q.toString();
+    return await this.request(`/market/trends${str ? '?' + str : ''}`);
+  },
+
+  async getMarketOpportunities(params = {}) {
+    const q = new URLSearchParams();
+    if (params.type && params.type !== 'all') q.append('type', params.type);
+    if (params.limit) q.append('limit', params.limit);
+    if (params.offset !== undefined) q.append('offset', params.offset);
+    const str = q.toString();
+    return await this.request(`/market/opportunities${str ? '?' + str : ''}`);
+  },
+
+  async getMarketPositioning() {
+    return await this.request('/market/positioning');
+  },
+
+  async getMarketVolatility() {
+    return await this.request('/market/volatility');
+  },
+
+  async getProductMarketIntelligence(productId) {
+    return await this.request(`/market/product/${productId}`);
   }
 };

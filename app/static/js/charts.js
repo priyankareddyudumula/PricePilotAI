@@ -234,6 +234,59 @@ const ChartsEngine = {
     this.renderOrUpdate('competitorPosition', containerId, options);
   },
 
+  initRollingAverageChart(containerId, trendsData) {
+    if (!trendsData || !trendsData.trends) return;
+    const skus = trendsData.trends.map(t => t.product_id);
+    const rolling7 = trendsData.trends.map(t => t.rolling_7d_avg || t.current_price);
+    const rolling14 = trendsData.trends.map(t => t.rolling_14d_avg || t.current_price);
+    const rolling30 = trendsData.trends.map(t => t.rolling_30d_avg || t.current_price);
+
+    const options = {
+      chart: { type: 'line', height: 300, background: 'transparent', fontFamily: 'Plus Jakarta Sans, sans-serif' },
+      theme: { mode: 'dark' },
+      colors: ['#6366f1', '#10b981', '#f59e0b'],
+      stroke: { curve: 'smooth', width: [3, 2, 2], dashArray: [0, 3, 5] },
+      dataLabels: { enabled: false },
+      series: [
+        { name: '7-Day Rolling Avg', data: rolling7 },
+        { name: '14-Day Rolling Avg', data: rolling14 },
+        { name: '30-Day Rolling Avg', data: rolling30 }
+      ],
+      xaxis: { categories: skus, labels: { style: { colors: '#94a3b8', fontSize: '10px' } } },
+      yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '11px' }, formatter: (v) => `R$ ${v.toFixed(0)}` } },
+      grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 3 },
+      legend: { position: 'top', labels: { colors: '#94a3b8' } },
+      tooltip: { theme: 'dark' }
+    };
+    this.renderOrUpdate('rollingAverage', containerId, options);
+  },
+
+  initMarketTrendChart(containerId, directionCounts) {
+    if (!directionCounts) return;
+    const labels = ['Increasing', 'Stable', 'Decreasing', 'Highly Volatile'];
+    const series = [
+      directionCounts['Increasing'] || 0,
+      directionCounts['Stable'] || 0,
+      directionCounts['Decreasing'] || 0,
+      directionCounts['Highly Volatile'] || 0
+    ];
+
+    const options = {
+      chart: { type: 'bar', height: 260, background: 'transparent', fontFamily: 'Plus Jakarta Sans, sans-serif' },
+      theme: { mode: 'dark' },
+      colors: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
+      plotOptions: { bar: { borderRadius: 6, distributed: true, columnWidth: '50%' } },
+      dataLabels: { enabled: false },
+      series: [{ name: 'Products Count', data: series }],
+      xaxis: { categories: labels, labels: { style: { colors: '#94a3b8', fontSize: '11px' } } },
+      yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '11px' } } },
+      grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 3 },
+      legend: { show: false },
+      tooltip: { theme: 'dark' }
+    };
+    this.renderOrUpdate('marketTrend', containerId, options);
+  },
+
   renderOrUpdate(key, containerId, options) {
     if (this.chartInstances[key]) {
       this.chartInstances[key].destroy();

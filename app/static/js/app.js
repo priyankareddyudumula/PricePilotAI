@@ -107,6 +107,7 @@ const App = {
     if (tabId === 'pricing') this.handlePricingFormSubmit();
     if (tabId === 'admin') this.loadAuditLogs();
     if (tabId === 'competitors') this.loadCompetitorsTab();
+    if (tabId === 'market-intelligence') this.loadMarketIntelligenceTab();
   },
 
   renderTableSkeleton(tbodyId, rows = 5, cols = 5) {
@@ -773,6 +774,141 @@ const App = {
     const menu = document.getElementById('export-report-dropdown');
     if (menu) menu.style.display = 'none';
     this.showToast(`Downloading pricing comparison report (${format.toUpperCase()})...`, 'info');
+  },
+
+  // Market Intelligence Controller Methods
+  async loadMarketIntelligenceTab() {
+    this.renderTableSkeleton('market-table-body', 5, 8);
+    await Promise.all([
+      this.loadMarketOverviewData(),
+      this.loadMarketTrendsData(),
+      this.loadMarketOpportunitiesData()
+    ]);
+  },
+
+  async loadMarketOverviewData() {
+    try {
+      const position = document.getElementById('market-filter-position')?.value || 'all';
+      const risk = document.getElementById('market-filter-risk')?.value || 'all';
+
+      const res = await API.getMarketOverview({ position, risk });
+      const summary = res.summary || {};
+      const products = res.products || [];
+
+      // Update KPI Cards
+      const stabilityEl = document.getElementById('market-kpi-stability');
+      const riskCountEl = document.getElementById('market-kpi-risk-count');
+      if (stabilityEl) stabilityEl.textContent = (summary.catalog_stability_score || 100.0).toFixed(1);
+
+      const highRiskCount = (summary.risk_counts['High Risk - Overpriced'] || 0) + 
+                            (summary.risk_counts['Volatility Risk'] || 0) + 
+                            (summary.risk_counts['Margin Risk - Low Price'] || 0);
+      if (riskCountEl) riskCountEl.textContent = highRiskCount;
+
+      // Render Catalog Market Table
+      const tbody = document.getElementById('market-table-body');
+      const search = document.getElementById('market-search-input')?.value || '';
+
+      let filtered = products;
+      if (search) {
+        filtered = filtered.filter(p => p.product_id.toLowerCase().includes(search.toLowerCase()));
+      }
+
+      if (!tbody) return;
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">No market intelligence data matches the current filters.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(p => {
+        const posClass = p.positioning_label ? `badge-${p.positioning_label.toLowerCase().replace(/\s+/g, '-')}` : 'badge-unmapped';
+        const riskColor = p.risk_label.includes('High Risk') ? '#f87171' : (p.risk_label.includes('Margin') ? '#fbbf24' : '#10b981');
+
+        return `
+          <tr>
+            <td><strong style="color: var(--text-heading);">${p.product_id}</strong></td>
+            <td><span style="font-size: 11px; color: var(--text-secondary);">${p.category_name}</span></td>
+            <td><strong>R$ ${p.our_price.toFixed(2)}</strong></td>
+            <td>${p.median_market_price !== null ? `R$ ${p.median_market_price.toFixed(2)}` : '—'}</td>
+            <td><span style="color: ${p.price_volatility_pct > 15 ? '#f87171' : 'var(--text-body)'}; font-weight: 500;">${p.price_volatility_pct.toFixed(1)}%</span></td>
+            <td><span class="${posClass}">${p.positioning_label}</span></td>
+            <td><span style="color: ${riskColor}; font-weight: 600; font-size: 11px;">${p.risk_label}</span></td>
+            <td><span style="font-size: 11.5px; color: var(--text-secondary);">${p.positioning_explanation}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+    } catch (e) {
+      console.error('Failed to load market overview:', e);
+    }
+  },
+
+  async loadMarketTrendsData() {
+    try {
+      const res = await API.getMarketTrends({ limit: 15, days: 30 });
+      if (typeof ChartsEngine !== 'undefined') {
+        if (ChartsEngine.initRollingAverageChart) ChartsEngine.initRollingAverageChart('chart-rolling-average', res);
+        if (ChartsEngine.initMarketTrendChart) ChartsEngine.initMarketTrendChart('chart-market-trend', res.summary.direction_counts);
+      }
+    } catch (e) {
+      console.error('Failed to load market trends data:', e);
+    }
+  },
+
+  async loadMarketOpportunitiesData() {
+    try {
+      const res = await API.getMarketOpportunities({ limit: 6 });
+      const summary = res.summary || {};
+      const opps = res.opportunities || [];
+
+      const oppCountEl = document.getElementById('market-kpi-opp-count');
+      const revGainEl = document.getElementById('market-kpi-revenue-gain');
+
+      if (oppCountEl) oppCountEl.textContent = summary.total_opportunities_detected || 0;
+      if (revGainEl) revGainEl.textContent = `+R$ ${(summary.total_potential_margin_gain || 0).toFixed(2)}`;
+
+      this.renderOpportunityCards(opps);
+    } catch (e) {
+      console.error('Failed to load market opportunities:', e);
+    }
+  },
+
+  renderOpportunityCards(opportunities) {
+    const container = document.getElementById('market-opportunity-cards-container');
+    if (!container) return;
+
+    if (!opportunities || opportunities.length === 0) {
+      container.innerHTML = '<div class="card-minimal" style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 24px;">No immediate pricing opportunities flagged for this view. Catalog prices are well optimized.</div>';
+      return;
+    }
+
+    container.innerHTML = opportunities.slice(0, 3).map(o => {
+      const typeBadgeClass = o.recommendation_type === 'PRICED_TOO_LOW' ? 'success' : (o.recommendation_type === 'PRICED_TOO_HIGH' ? 'warning' : 'primary');
+      const actionText = o.price_change_pct > 0 ? `Increase price by +${o.price_change_pct.toFixed(1)}%` : `Lower price by ${o.price_change_pct.toFixed(1)}%`;
+
+      return `
+        <div class="card-minimal" style="border-left: 3px solid ${o.price_change_pct > 0 ? 'var(--success)' : 'var(--warning)'};">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="color: var(--text-heading); font-size: 13px;">${o.product_sku}</strong>
+            <span class="badge-minimal ${typeBadgeClass}">${o.recommendation_type.replace(/_/g, ' ')}</span>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: baseline; margin-bottom: 8px;">
+            <span style="font-size: 12px; color: var(--text-muted); text-decoration: line-through;">R$ ${o.current_price.toFixed(2)}</span>
+            <span style="font-size: 15px; font-weight: 700; color: var(--text-heading);">R$ ${o.recommended_price.toFixed(2)}</span>
+            <span style="font-size: 11px; font-weight: 600; color: ${o.price_change_pct > 0 ? '#10b981' : '#f59e0b'};">(${actionText})</span>
+          </div>
+          <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; margin-bottom: 10px;">${o.explanation}</p>
+          <div style="font-size: 10.5px; color: var(--text-muted); display: flex; justify-content: space-between;">
+            <span>Confidence: ${(o.confidence_score * 100).toFixed(0)}%</span>
+            <span style="color: #10b981; font-weight: 600;">Potential Margin Gain: +R$ ${(o.expected_margin || 0).toFixed(2)}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  onMarketSearchChange() {
+    this.loadMarketOverviewData();
   },
 
   showNotification(msg, type = 'info') {
