@@ -271,5 +271,47 @@ const API = {
 
   async getProductMarketIntelligence(productId) {
     return await this.request(`/market/product/${productId}`);
+  },
+
+  // Revenue Optimization & Pricing Strategy Engine APIs
+  async getRevenueOverview(params = {}) {
+    const q = new URLSearchParams();
+    if (params.category_id) q.append('category_id', params.category_id);
+    const str = q.toString();
+    return await this.request(`/revenue/overview${str ? '?' + str : ''}`);
+  },
+
+  async getRevenueProfitability(params = {}) {
+    const q = new URLSearchParams();
+    if (params.category_id) q.append('category_id', params.category_id);
+    const str = q.toString();
+    return await this.request(`/revenue/profitability${str ? '?' + str : ''}`);
+  },
+
+  async getRevenueRecommendations(params = {}) {
+    const q = new URLSearchParams();
+    if (params.strategy && params.strategy !== 'all') q.append('strategy', params.strategy);
+    if (params.risk && params.risk !== 'all') q.append('risk', params.risk);
+    if (params.limit) q.append('limit', params.limit);
+    if (params.offset !== undefined) q.append('offset', params.offset);
+    const str = q.toString();
+    return await this.request(`/revenue/recommendations${str ? '?' + str : ''}`);
+  },
+
+  async getRevenueSimulationBaseline(params = {}) {
+    const q = new URLSearchParams();
+    if (params.price_change_pct) q.append('price_change_pct', params.price_change_pct);
+    if (params.cost_change_pct) q.append('cost_change_pct', params.cost_change_pct);
+    if (params.demand_multiplier) q.append('demand_multiplier', params.demand_multiplier);
+    const str = q.toString();
+    return await this.request(`/revenue/simulation${str ? '?' + str : ''}`);
+  },
+
+  async runRevenueSimulation(simulationData) {
+    return await this.request('/revenue/simulate', 'POST', simulationData);
+  },
+
+  async getProductRevenueProfile(productId) {
+    return await this.request(`/revenue/product/${productId}`);
   }
 };

@@ -287,6 +287,78 @@ const ChartsEngine = {
     this.renderOrUpdate('marketTrend', containerId, options);
   },
 
+  initRevenueProfitTrendChart(containerId, overviewData) {
+    if (!overviewData || !overviewData.products) return;
+    const items = overviewData.products.slice(0, 12);
+    const skus = items.map(i => i.product_id);
+    const currentRev = items.map(i => i.current_revenue);
+    const projRev = items.map(i => i.projected_revenue);
+    const projProf = items.map(i => i.projected_profit);
+
+    const options = {
+      chart: { type: 'bar', height: 300, background: 'transparent', fontFamily: 'Plus Jakarta Sans, sans-serif' },
+      theme: { mode: 'dark' },
+      colors: ['#64748b', '#6366f1', '#10b981'],
+      stroke: { width: 0 },
+      dataLabels: { enabled: false },
+      series: [
+        { name: 'Current Revenue', data: currentRev },
+        { name: 'Projected Revenue', data: projRev },
+        { name: 'Projected Profit', data: projProf }
+      ],
+      xaxis: { categories: skus, labels: { style: { colors: '#94a3b8', fontSize: '10px' } } },
+      yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '11px' }, formatter: (v) => `R$ ${(v/1000).toFixed(1)}k` } },
+      grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 3 },
+      legend: { position: 'top', labels: { colors: '#94a3b8' } },
+      tooltip: { theme: 'dark' }
+    };
+    this.renderOrUpdate('revenueProfitTrend', containerId, options);
+  },
+
+  initScenarioSensitivityChart(containerId, sensitivityCurve) {
+    if (!sensitivityCurve || sensitivityCurve.length === 0) return;
+    const prices = sensitivityCurve.map(s => `R$ ${s.simulated_price.toFixed(0)} (${s.price_change_pct > 0 ? '+' : ''}${s.price_change_pct}%)`);
+    const profits = sensitivityCurve.map(s => s.projected_profit);
+    const revenues = sensitivityCurve.map(s => s.projected_revenue);
+
+    const options = {
+      chart: { type: 'line', height: 300, background: 'transparent', fontFamily: 'Plus Jakarta Sans, sans-serif' },
+      theme: { mode: 'dark' },
+      colors: ['#10b981', '#6366f1'],
+      stroke: { curve: 'smooth', width: [3, 2] },
+      dataLabels: { enabled: false },
+      series: [
+        { name: 'Projected Net Profit', data: profits },
+        { name: 'Projected Gross Revenue', data: revenues }
+      ],
+      xaxis: { categories: prices, labels: { style: { colors: '#94a3b8', fontSize: '10px' } } },
+      yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '11px' }, formatter: (v) => `R$ ${v.toFixed(0)}` } },
+      grid: { borderColor: 'rgba(255,255,255,0.05)', strokeDashArray: 3 },
+      legend: { position: 'top', labels: { colors: '#94a3b8' } },
+      tooltip: { theme: 'dark' }
+    };
+    this.renderOrUpdate('scenarioSensitivity', containerId, options);
+  },
+
+  initPricingStrategyChart(containerId, strategyCounts) {
+    if (!strategyCounts) return;
+    const labels = Object.keys(strategyCounts);
+    const series = Object.values(strategyCounts);
+
+    const options = {
+      chart: { type: 'donut', height: 260, background: 'transparent', fontFamily: 'Plus Jakarta Sans, sans-serif' },
+      theme: { mode: 'dark' },
+      labels: labels,
+      series: series,
+      colors: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#3b82f6', '#06b6d4', '#8b5cf6'],
+      stroke: { width: 0 },
+      dataLabels: { enabled: false },
+      legend: { position: 'bottom', labels: { colors: '#94a3b8', fontSize: '10px' } },
+      tooltip: { theme: 'dark' }
+    };
+    this.renderOrUpdate('pricingStrategyDist', containerId, options);
+  },
+
   renderOrUpdate(key, containerId, options) {
     if (this.chartInstances[key]) {
       this.chartInstances[key].destroy();

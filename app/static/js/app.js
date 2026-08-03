@@ -108,6 +108,7 @@ const App = {
     if (tabId === 'admin') this.loadAuditLogs();
     if (tabId === 'competitors') this.loadCompetitorsTab();
     if (tabId === 'market-intelligence') this.loadMarketIntelligenceTab();
+    if (tabId === 'revenue-engine') this.loadRevenueEngineTab();
   },
 
   renderTableSkeleton(tbodyId, rows = 5, cols = 5) {
@@ -909,6 +910,172 @@ const App = {
 
   onMarketSearchChange() {
     this.loadMarketOverviewData();
+  },
+
+  // Revenue Optimization Controller Methods
+  async loadRevenueEngineTab() {
+    this.renderTableSkeleton('revenue-table-body', 5, 10);
+    await Promise.all([
+      this.loadRevenueOverviewData(),
+      this.loadRevenueRecommendationsData(),
+      this.onSimulationInputChange()
+    ]);
+  },
+
+  async loadRevenueOverviewData() {
+    try {
+      const res = await API.getRevenueOverview();
+      const summary = res.summary || {};
+
+      const revEl = document.getElementById('rev-kpi-projected-revenue');
+      const profEl = document.getElementById('rev-kpi-projected-profit');
+      const marginEl = document.getElementById('rev-kpi-gross-margin');
+      const roiEl = document.getElementById('rev-kpi-roi');
+      const growthSubEl = document.getElementById('rev-kpi-growth-subtext');
+      const profitLiftSubEl = document.getElementById('rev-kpi-profit-lift-subtext');
+
+      if (revEl) revEl.textContent = `R$ ${(summary.total_projected_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      if (profEl) profEl.textContent = `R$ ${(summary.total_projected_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      if (roiEl) roiEl.textContent = `${(summary.overall_expected_roi || 0).toFixed(1)}%`;
+      if (growthSubEl) growthSubEl.textContent = `+${(summary.overall_expected_growth || 0).toFixed(1)}% expected growth`;
+      if (profitLiftSubEl) profitLiftSubEl.textContent = `+R$ ${(summary.potential_profit_lift || 0).toFixed(2)} profit lift`;
+
+      if (res.products && res.products.length > 0) {
+        const avgMargin = res.products.reduce((acc, p) => acc + (p.gross_margin_pct || 0), 0) / res.products.length;
+        if (marginEl) marginEl.textContent = `${avgMargin.toFixed(1)}%`;
+      }
+
+      if (typeof ChartsEngine !== 'undefined' && ChartsEngine.initRevenueProfitTrendChart) {
+        ChartsEngine.initRevenueProfitTrendChart('chart-revenue-profit-trend', res);
+      }
+    } catch (e) {
+      console.error('Failed to load revenue overview data:', e);
+    }
+  },
+
+  async loadRevenueRecommendationsData() {
+    try {
+      const strategy = document.getElementById('revenue-filter-strategy')?.value || 'all';
+      const risk = document.getElementById('revenue-filter-risk')?.value || 'all';
+
+      const res = await API.getRevenueRecommendations({ strategy, risk });
+      const recs = res.recommendations || [];
+      const summary = res.summary || {};
+
+      if (typeof ChartsEngine !== 'undefined' && ChartsEngine.initPricingStrategyChart) {
+        ChartsEngine.initPricingStrategyChart('chart-pricing-strategy-dist', summary.strategy_counts);
+      }
+
+      const tbody = document.getElementById('revenue-table-body');
+      const search = document.getElementById('revenue-search-input')?.value || '';
+
+      let filtered = recs;
+      if (search) {
+        filtered = filtered.filter(r => r.product_sku && r.product_sku.toLowerCase().includes(search.toLowerCase()));
+      }
+
+      if (!tbody) return;
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: var(--text-muted);">No revenue strategies match the current filters.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(r => {
+        const stratColor = r.strategy_type === 'Loss Prevention' ? '#f87171' : (r.strategy_type === 'Premium Pricing' ? '#fbbf24' : '#60a5fa');
+        const riskColor = r.risk_level === 'HIGH' ? '#f87171' : (r.risk_level === 'MEDIUM' ? '#fbbf24' : '#10b981');
+        const breakeven = r.current_price * 0.65; // Approx baseline break-even
+
+        return `
+          <tr>
+            <td><strong style="color: var(--text-heading);">${r.product_sku}</strong></td>
+            <td><span style="font-size: 11.5px; color: var(--text-muted);">R$ ${(r.current_price * 0.60).toFixed(2)}</span></td>
+            <td>R$ ${r.current_price.toFixed(2)}</td>
+            <td><span style="font-size: 11.5px; color: #f87171;">R$ ${breakeven.toFixed(2)}</span></td>
+            <td><strong style="color: #10b981;">R$ ${r.recommended_price.toFixed(2)}</strong></td>
+            <td><span style="color: ${stratColor}; font-weight: 600; font-size: 11.5px;">${r.strategy_type}</span></td>
+            <td><strong style="color: #10b981;">+R$ ${(r.expected_profit || 0).toFixed(2)}</strong></td>
+            <td><span style="color: #c084fc; font-weight: 600;">+${(r.expected_roi || 0).toFixed(1)}%</span></td>
+            <td><span style="color: ${riskColor}; font-size: 11px; font-weight: 700;">${r.risk_level}</span></td>
+            <td><span style="font-size: 11.5px; color: var(--text-secondary);">${r.explanation}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+    } catch (e) {
+      console.error('Failed to load revenue recommendations:', e);
+    }
+  },
+
+  async onSimulationInputChange() {
+    try {
+      const pricePct = parseFloat(document.getElementById('sim-slider-price')?.value || '0');
+      const compPct = parseFloat(document.getElementById('sim-slider-comp')?.value || '0');
+      const costPct = parseFloat(document.getElementById('sim-slider-cost')?.value || '0');
+      const demandMult = parseFloat(document.getElementById('sim-slider-demand')?.value || '1.0');
+
+      document.getElementById('sim-val-price').textContent = `${pricePct > 0 ? '+' : ''}${pricePct.toFixed(1)}%`;
+      document.getElementById('sim-val-comp').textContent = `${compPct > 0 ? '+' : ''}${compPct.toFixed(1)}%`;
+      document.getElementById('sim-val-cost').textContent = `${costPct > 0 ? '+' : ''}${costPct.toFixed(1)}%`;
+      document.getElementById('sim-val-demand').textContent = `${demandMult.toFixed(2)}x`;
+
+      const res = await API.runRevenueSimulation({
+        price_change_pct: pricePct,
+        competitor_price_change_pct: compPct,
+        cost_change_pct: costPct,
+        demand_multiplier: demandMult
+      });
+
+      const sim = res.simulation || {};
+      const impact = res.impact || {};
+
+      const revOut = document.getElementById('sim-out-revenue');
+      const revDelta = document.getElementById('sim-out-rev-delta');
+      const profOut = document.getElementById('sim-out-profit');
+      const profDelta = document.getElementById('sim-out-prof-delta');
+      const marginOut = document.getElementById('sim-out-margin');
+      const beOut = document.getElementById('sim-out-breakeven');
+      const beDelta = document.getElementById('sim-out-be-delta');
+
+      if (revOut) revOut.textContent = `R$ ${sim.revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      if (revDelta) {
+        revDelta.textContent = `(${impact.revenue_delta_pct > 0 ? '+' : ''}${impact.revenue_delta_pct.toFixed(1)}%)`;
+        revDelta.style.color = impact.revenue_delta_pct >= 0 ? '#10b981' : '#f87171';
+      }
+
+      if (profOut) profOut.textContent = `R$ ${sim.profit.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      if (profDelta) {
+        profDelta.textContent = `(${impact.profit_delta_abs >= 0 ? '+' : ''}R$ ${impact.profit_delta_abs.toFixed(2)})`;
+        profDelta.style.color = impact.profit_delta_abs >= 0 ? '#10b981' : '#f87171';
+      }
+
+      if (marginOut) marginOut.textContent = `${sim.margin_pct.toFixed(1)}%`;
+      if (beOut) beOut.textContent = `R$ ${sim.breakeven_price.toFixed(2)}`;
+      if (beDelta) beDelta.textContent = `(Shift: ${impact.breakeven_shift_abs >= 0 ? '+' : ''}R$ ${impact.breakeven_shift_abs.toFixed(2)})`;
+
+      if (typeof ChartsEngine !== 'undefined' && ChartsEngine.initScenarioSensitivityChart && res.sensitivity_analysis) {
+        ChartsEngine.initScenarioSensitivityChart('chart-scenario-sensitivity', res.sensitivity_analysis);
+      }
+    } catch (e) {
+      console.error('Failed to execute What-If simulation:', e);
+    }
+  },
+
+  resetSimulationSliders() {
+    const p = document.getElementById('sim-slider-price');
+    const c = document.getElementById('sim-slider-comp');
+    const co = document.getElementById('sim-slider-cost');
+    const d = document.getElementById('sim-slider-demand');
+
+    if (p) p.value = '0';
+    if (c) c.value = '0';
+    if (co) co.value = '0';
+    if (d) d.value = '1.0';
+
+    this.onSimulationInputChange();
+  },
+
+  onRevenueSearchChange() {
+    this.loadRevenueRecommendationsData();
   },
 
   showNotification(msg, type = 'info') {
