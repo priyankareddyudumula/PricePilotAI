@@ -97,4 +97,11 @@ def create_app(config_class=Config):
             db.session.add_all(seed_users)
             db.session.commit()
 
+        # Seed catalog products, competitor price feeds, and forecasts
+        try:
+            from app.services.seeder import seed_catalog_and_competitors
+            seed_catalog_and_competitors()
+        except Exception as e:
+            app.logger.warning(f"Database seeder warning: {str(e)}")
+
     return app

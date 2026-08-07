@@ -3,33 +3,36 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Data files
-data/
-*.csv
-*.zip
-*.tar.gz
+# Environment & Secrets
+.env
+.venv/
+env/
+venv/
 
-# Machine learning model serialization
-*.pkl
-*.pkl.gz
-*.joblib
-outputs/models/
-outputs/shap/
-outputs/feature_importance/
+# Database & Instance Files
+instance/
+*.sqlite
+*.db
 
-# Logs
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs & Temporary Files
 logs/
 *.log
+catboost_info/
 
-# IDEs
+# Office / Temporary Generation Artifacts
+*.docx
+~$*.docx
+*.pdf
+*.xlsx
+
+# IDE & OS Specific
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
 .ipynb_checkpoints/
-
-# HTML reports (large)
-*.html
-
-# Cache & Local DB
-catboost_info/
-instance/
-.pytest_cache/

@@ -9,7 +9,7 @@ class AlertService:
         """
         Scans catalog and generates prioritized business notifications & alerts.
         """
-        products = Product.query.limit(30).all()
+        products = Product.query.order_by(Product.id.desc()).limit(50).all()
         alerts = []
 
         for p in products:
