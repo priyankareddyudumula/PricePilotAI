@@ -12,7 +12,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-       PYTHONPATH: .
+      PYTHONPATH: .
 
     steps:
       - name: Checkout code
@@ -34,7 +34,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest -m pytest
+          pytest
 
   docker:
     runs-on: ubuntu-latest
@@ -45,4 +45,5 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t pricepilot-ai:latest .
+        run: |
+          docker build -t pricepilot-ai:latest .
