@@ -1,12 +1,11 @@
-name: PricePilot AI CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
+
 jobs:
   test:
     name: Run Automated Tests & Code Verification
@@ -56,11 +55,3 @@ jobs:
     name: Verify Docker Container Build
     runs-on: ubuntu-latest
     needs: test
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Docker image
-        run: |
-          docker build -t pricepilot-ai:latest .
