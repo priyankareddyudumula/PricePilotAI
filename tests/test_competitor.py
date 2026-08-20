@@ -1,9 +1,7 @@
-import io
-import pytest
 from app.models import db, Competitor, CompetitorCategory, CompetitorProduct, CompetitorPrice, Product, Category
 from app.services.competitor_service import CompetitorService
 from app.services.comparison_engine import PriceComparisonEngine
-from app.services.report_service import PricingReportService
+
 
 def test_competitor_db_models(app):
     """Test normalized competitor database model relationships and serialization."""
@@ -13,17 +11,26 @@ def test_competitor_db_models(app):
         db.session.add(cat)
         db.session.flush()
 
-        prod = Product(product_id="TEST-SKU-001", current_price=100.0, category_id=cat.id)
+        prod = Product(
+            product_id="TEST-SKU-001",
+            current_price=100.0,
+            category_id=cat.id)
         db.session.add(prod)
         db.session.flush()
 
         # Create competitor
-        comp = Competitor(name="TechStore BR", website_url="https://techstore.br", country="BR", trust_score=0.9)
+        comp = Competitor(
+            name="TechStore BR",
+            website_url="https://techstore.br",
+            country="BR",
+            trust_score=0.9)
         db.session.add(comp)
         db.session.flush()
 
         # Create competitor category & product
-        comp_cat = CompetitorCategory(competitor_id=comp.id, category_name="Gadgets")
+        comp_cat = CompetitorCategory(
+            competitor_id=comp.id,
+            category_name="Gadgets")
         db.session.add(comp_cat)
         db.session.flush()
 
@@ -62,6 +69,7 @@ def test_competitor_db_models(app):
         assert prod_dict['competitor_sku'] == "COMP-TECH-01"
         assert prod_dict['latest_price'] == 90.0
 
+
 def test_competitor_crud_apis(client):
     """Test REST API CRUD operations on /api/competitors."""
     # 1. Create Competitor
@@ -98,6 +106,7 @@ def test_competitor_crud_apis(client):
 
     # Verify 404 after delete
     assert client.get(f'/api/competitors/{comp_id}').status_code == 404
+
 
 def test_data_ingestion_and_validation(app):
     """Test data collection ingestion & rejection of invalid records."""
@@ -137,10 +146,12 @@ def test_data_ingestion_and_validation(app):
             }
         ]
 
-        res = CompetitorService.ingest_price_records(records, default_source='API')
+        res = CompetitorService.ingest_price_records(
+            records, default_source='API')
         assert res['success_count'] == 1
         assert res['rejected_count'] == 3
         assert len(res['errors']) == 3
+
 
 def test_csv_import_api(client):
     """Test CSV file ingestion API endpoint."""
@@ -148,7 +159,7 @@ def test_csv_import_api(client):
         "competitor_name,competitor_sku,internal_product_sku,title,price,currency,availability\n"
         "Retailer X,RET-101,PROD-101,Widget X,120.00,BRL,in_stock\n"
         "Retailer Y,RET-102,PROD-101,Widget X,140.00,BRL,in_stock\n"
-        "Retailer Z,RET-103,PROD-101,Widget X,-10.00,BRL,in_stock\n" # Should be rejected
+        "Retailer Z,RET-103,PROD-101,Widget X,-10.00,BRL,in_stock\n"  # Should be rejected
     )
 
     res = client.post(
@@ -161,6 +172,7 @@ def test_csv_import_api(client):
     assert json_data['success_count'] == 2
     assert json_data['rejected_count'] == 1
 
+
 def test_price_comparison_engine(app):
     """Test PriceComparisonEngine min, max, avg, gap %, and position labeling logic."""
     with app.app_context():
@@ -170,11 +182,21 @@ def test_price_comparison_engine(app):
         db.session.commit()
 
         # Ingest 3 competitor prices: 80, 100, 120 (Avg = 100)
-        records = [
-            {'competitor_name': 'Comp 1', 'competitor_sku': 'SKU-1', 'internal_product_sku': 'COMP-ENGINE-SKU', 'title': 'P1', 'price': 80.0},
-            {'competitor_name': 'Comp 2', 'competitor_sku': 'SKU-2', 'internal_product_sku': 'COMP-ENGINE-SKU', 'title': 'P1', 'price': 100.0},
-            {'competitor_name': 'Comp 3', 'competitor_sku': 'SKU-3', 'internal_product_sku': 'COMP-ENGINE-SKU', 'title': 'P1', 'price': 120.0}
-        ]
+        records = [{'competitor_name': 'Comp 1',
+                    'competitor_sku': 'SKU-1',
+                    'internal_product_sku': 'COMP-ENGINE-SKU',
+                    'title': 'P1',
+                    'price': 80.0},
+                   {'competitor_name': 'Comp 2',
+                    'competitor_sku': 'SKU-2',
+                    'internal_product_sku': 'COMP-ENGINE-SKU',
+                    'title': 'P1',
+                    'price': 100.0},
+                   {'competitor_name': 'Comp 3',
+                    'competitor_sku': 'SKU-3',
+                    'internal_product_sku': 'COMP-ENGINE-SKU',
+                    'title': 'P1',
+                    'price': 120.0}]
         CompetitorService.ingest_price_records(records)
 
         comp_res = PriceComparisonEngine.compare_product(prod)
@@ -189,13 +211,18 @@ def test_price_comparison_engine(app):
 
         # Test Position Classifications
         # 1. Our price 75 < lowest 80 => Lowest
-        assert PriceComparisonEngine.classify_price_position(75.0, 80.0, 120.0, 100.0) == "Lowest"
+        assert PriceComparisonEngine.classify_price_position(
+            75.0, 80.0, 120.0, 100.0) == "Lowest"
         # 2. Our price 90 within [lowest, avg] => Competitive
-        assert PriceComparisonEngine.classify_price_position(90.0, 80.0, 120.0, 100.0) == "Competitive"
+        assert PriceComparisonEngine.classify_price_position(
+            90.0, 80.0, 120.0, 100.0) == "Competitive"
         # 3. Our price 110 > avg 100 but <= max 120 => Premium
-        assert PriceComparisonEngine.classify_price_position(110.0, 80.0, 120.0, 100.0) == "Premium"
+        assert PriceComparisonEngine.classify_price_position(
+            110.0, 80.0, 120.0, 100.0) == "Premium"
         # 4. Our price 130 > max 120 => Overpriced
-        assert PriceComparisonEngine.classify_price_position(130.0, 80.0, 120.0, 100.0) == "Overpriced"
+        assert PriceComparisonEngine.classify_price_position(
+            130.0, 80.0, 120.0, 100.0) == "Overpriced"
+
 
 def test_report_generation_and_export(client, app):
     """Test report generation service and export endpoints (CSV, Excel, PDF)."""
@@ -204,9 +231,14 @@ def test_report_generation_and_export(client, app):
         db.session.add(prod)
         db.session.commit()
 
-        CompetitorService.ingest_price_records([
-            {'competitor_name': 'ReportComp', 'competitor_sku': 'RC-1', 'internal_product_sku': 'REPORT-TEST-SKU', 'title': 'R1', 'price': 150.0}
-        ])
+        CompetitorService.ingest_price_records(
+            [
+                {
+                    'competitor_name': 'ReportComp',
+                    'competitor_sku': 'RC-1',
+                    'internal_product_sku': 'REPORT-TEST-SKU',
+                    'title': 'R1',
+                    'price': 150.0}])
 
     # 1. Export CSV
     csv_res = client.get('/api/competitors/reports/export?format=csv')
@@ -217,12 +249,15 @@ def test_report_generation_and_export(client, app):
     # 2. Export Excel
     excel_res = client.get('/api/competitors/reports/export?format=excel')
     assert excel_res.status_code == 200
-    assert excel_res.content_type in ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv']
+    assert excel_res.content_type in [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/csv']
 
     # 3. Export PDF
     pdf_res = client.get('/api/competitors/reports/export?format=pdf')
     assert pdf_res.status_code == 200
     assert pdf_res.content_type in ['application/pdf', 'text/plain']
+
 
 def test_comparison_api_endpoint(client):
     """Test /api/competitors/comparison endpoint."""

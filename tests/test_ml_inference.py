@@ -55,7 +55,8 @@ def test_demand_forecast_horizons_and_schemas(client, admin_token):
             assert 'forecasted_demand' in day_record
             assert 'lower_bound' in day_record
             assert 'upper_bound' in day_record
-            assert 0 <= day_record['lower_bound'] <= day_record['forecasted_demand'] <= day_record['upper_bound']
+            assert 0 <= day_record['lower_bound'] <= day_record['forecasted_demand']
+            assert day_record['forecasted_demand'] <= day_record['upper_bound']
 
 
 def test_demand_forecast_invalid_product(client, admin_token):

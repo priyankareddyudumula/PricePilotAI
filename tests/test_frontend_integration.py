@@ -1,7 +1,7 @@
 import os
 import subprocess
 import pytest
-from flask import url_for
+
 
 def test_frontend_assets_exist(client):
     """Verify that all core frontend SPA assets are served successfully by Flask."""
@@ -29,14 +29,19 @@ def test_frontend_assets_exist(client):
     assert res_css.status_code == 200
     assert b'skeleton-shimmer' in res_css.data
 
+
 def test_node_frontend_unit_suite():
     """Execute Node.js frontend unit test script tests/test_frontend.test.js if node is installed."""
-    test_js_path = os.path.join(os.path.dirname(__file__), 'test_frontend.test.js')
+    test_js_path = os.path.join(
+        os.path.dirname(__file__),
+        'test_frontend.test.js')
     assert os.path.exists(test_js_path)
-    
+
     try:
-        res = subprocess.run(['node', test_js_path], capture_output=True, text=True, timeout=10)
+        res = subprocess.run(['node', test_js_path],
+                             capture_output=True, text=True, timeout=10)
         assert res.returncode == 0
         assert 'ALL 3 FRONTEND UNIT TEST SUITES PASSED' in res.stdout
     except FileNotFoundError:
-        pytest.skip("Node.js executable not found in environment, skipping JS runtime runner test.")
+        pytest.skip(
+            "Node.js executable not found in environment, skipping JS runtime runner test.")

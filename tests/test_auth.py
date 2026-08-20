@@ -21,12 +21,21 @@ def test_register_and_login(client):
     assert res_login.status_code == 200
     assert 'access_token' in res_login.get_json()
 
+
 def test_invalid_login(client):
-    res = client.post('/api/auth/login', json={'email': 'wrong@example.com', 'password': 'wrong'})
+    res = client.post(
+        '/api/auth/login',
+        json={
+            'email': 'wrong@example.com',
+            'password': 'wrong'})
     assert res.status_code == 401
 
+
 def test_protected_profile(client, analyst_token):
-    res = client.get('/api/auth/profile', headers={'Authorization': f'Bearer {analyst_token}'})
+    res = client.get(
+        '/api/auth/profile',
+        headers={
+            'Authorization': f'Bearer {analyst_token}'})
     assert res.status_code == 200
     data = res.get_json()
     assert data['user']['role'] == 'Business Analyst'

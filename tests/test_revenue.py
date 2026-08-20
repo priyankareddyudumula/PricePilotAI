@@ -1,5 +1,4 @@
-import pytest
-from app.models import db, Product, Category, CompetitorPrice, PriceRecommendation, DemandForecast
+from app.models import db, Product, PriceRecommendation
 from app.services.revenue_optimization_engine import RevenueOptimizationEngine
 from app.services.pricing_strategy_engine import PricingStrategyEngine
 from app.services.simulation_engine import SimulationEngine
@@ -7,7 +6,7 @@ from app.services.profitability_service import ProfitabilityService
 
 
 def test_revenue_optimization_engine(app):
-    """Test cost price, breakeven price, optimal price, and projected profit/ROI math."""
+    """Test cost price, breakeven price, optimal price, and projected profit/ROI.`n    math."""
     with app.app_context():
         prod = Product(
             product_id="REV-TEST-SKU",
@@ -31,7 +30,7 @@ def test_revenue_optimization_engine(app):
 
 
 def test_pricing_strategy_engine(app):
-    """Test AI pricing strategy generation, risk levels, confidence scores, and DB persistence."""
+    """Test AI pricing strategy generation, risk levels, confidence scores,`n    and DB persistence."""
     with app.app_context():
         # Case 1: Normal product -> Revenue Maximization / Premium
         prod1 = Product(
@@ -66,7 +65,7 @@ def test_pricing_strategy_engine(app):
 
 
 def test_whatif_scenario_simulation(app):
-    """Test What-If simulation engine with multi-variable price/cost/demand adjustments."""
+    """Test What-If simulation engine with multi-variable price/cost/demand`n    adjustments."""
     with app.app_context():
         prod = Product(
             product_id="SIM-TEST-SKU",
@@ -91,7 +90,7 @@ def test_whatif_scenario_simulation(app):
 
 
 def test_profitability_service(app):
-    """Test catalog profitability analytics, gross profit, net profit, and best/worst SKUs."""
+    """Test catalog profitability analytics, gross profit, net profit, and`n    best/worst SKUs."""
     with app.app_context():
         p1 = Product(
             product_id="PROF-HIGH",
